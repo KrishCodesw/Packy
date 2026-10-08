@@ -4,6 +4,8 @@
 // import { mkdir, stat, readdir } from "node:fs/promises";
 // import { createWriteStream } from "node:fs";
 // import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { Readable } from "node:stream";
 
 // import {
 //   buildFiles,
@@ -36,12 +38,6 @@
 //     binary: "pi",
 //   },
 // ] as const;
-
-// const OUTPUT_DIR = join(
-//   process.cwd(),
-//   "public",
-//   "generated",
-// );
 
 // function sanitizeName(name: string): string {
 //   return (
@@ -466,46 +462,89 @@
 //       );
 //     }
 
-//     await mkdir(
-//       OUTPUT_DIR,
-//       {
-//         recursive: true,
-//       },
-//     );
-
 //     const harnessSlug =
-//       sanitizeName(input.name);
+      sanitizeName(input.name);
 
-//     const filename =
-//       `${harnessSlug}.zip`;
+    const filename =
+      `${harnessSlug}.zip`;
 
-//     const zipPath =
-//       join(
-//         OUTPUT_DIR,
-//         filename,
-//       );
+    const temporaryDirectory =
+      await mkdtemp(
+        join(
+          tmpdir(),
+          "harness-builder-",
+        ),
+      );
 
-//     await createZip(
-//       input,
-//       zipPath,
-//       harnessSlug,
-//     );
+    const zipPath =
+      join(
+        temporaryDirectory,
+        filename,
+      );
 
-//     const { size } =
-//       await stat(zipPath);
+    try {
+      await createZip(
+        input,
+        zipPath,
+        harnessSlug,
+        runtime,
+      );
 
-//     console.log(
-//       `Harness generated: ${filename} (${size} bytes)`,
-//     );
+      const { size } =
+        await stat(zipPath);
 
-//     return NextResponse.json({
-//       success: true,
-//       filename,
-//       downloadUrl:
-//         `/generated/${encodeURIComponent(filename)}`,
-//       size,
-//     });
-//   } catch (error) {
+      console.log(
+        `Harness generated: ${filename} (${size} bytes)`,
+      );
+
+      const fileStream =
+        createReadStream(zipPath);
+
+      const cleanup = () =>
+        rm(
+          temporaryDirectory,
+          {
+            recursive: true,
+            force: true,
+          },
+        ).catch((error) =>
+          console.error(
+            "Temporary harness cleanup failed:",
+            error,
+          ),
+        );
+
+      fileStream.on("close", cleanup);
+      fileStream.on("error", cleanup);
+
+      return new Response(
+        Readable.toWeb(fileStream) as ReadableStream,
+        {
+          headers: {
+            "content-type":
+              "application/zip",
+            "content-length":
+              String(size),
+            "content-disposition":
+              `attachment; filename="${filename}"`,
+            "cache-control":
+              "no-store",
+          },
+        },
+      );
+    } catch (error) {
+      await rm(
+        temporaryDirectory,
+        {
+          recursive: true,
+          force: true,
+        },
+      );
+
+      throw error;
+    }
+
+  } catch (error) {
 //     console.error(
 //       "Harness generation failed:",
 //       error,
@@ -527,8 +566,8 @@
 import { NextResponse } from "next/server";
 import yazl from "yazl";
 
-import { mkdir, stat, readdir } from "node:fs/promises";
-import { createWriteStream } from "node:fs";
+import { mkdtemp, readdir, rm, stat } from "node:fs/promises";
+import { createReadStream, createWriteStream } from "node:fs";
 import { join, resolve } from "node:path";
 
 import {

@@ -85,21 +85,31 @@ export default function Home() {
         body: JSON.stringify(input),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json().catch(() => null);
         throw new Error(data?.error || "Generation failed");
       }
 
-      if (!data.downloadUrl) {
-        throw new Error("No download URL returned");
-      }
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const contentDisposition =
+        response.headers.get("content-disposition");
+      const filename =
+        contentDisposition?.match(/filename="([^"]+)"/)?.[1] ||
+        "harness.zip";
+
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(downloadUrl);
 
       setStatus(
-        "Harness generated. Run install.cmd on Windows or install.sh on macOS.",
+        "Harness generated and downloaded.",
       );
 
-      window.location.assign(data.downloadUrl);
     } catch (error) {
       console.error("Generation failed:", error);
 

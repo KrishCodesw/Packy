@@ -1,98 +1,310 @@
-# Agentmaxxer
+# Packy
 
-Agentmaxxer is a pre-install customization layer for [Pi](https://github.com/earendil-works/pi). You configure an agent in a web UI, and it generates a **self-contained ZIP harness**: the Pi runtime, your agent configuration, and an installer. Nothing else needs to be installed on the target machine.
+**Your agent. Packaged.**
 
-Agentmaxxer does not replace Pi or add a new agent runtime. It decides what goes into Pi *before* installation, for the things that are hard to change afterwards.
+Packy turns an agent configuration into an installable runtime package. Configure an agent's model, tools, skills, rules, and prompts, then bundle those resources with the [Pi](https://github.com/earendil-works/pi) runtime and an installer.
 
-## How it works
+Instead of sending someone a setup guide and a folder of configuration, you can give them one package to install.
 
-The builder is a 5-step flow:
+> **Packy is an early-stage MVP.** The current generator implements Windows x64 packaging. macOS and Linux support, working MCP integrations, a CLI, and a package registry are not shipped yet.
 
-1. **Identity**: name and description of the agent
-2. **Runtime**: model, thinking level, target platform
-3. **Capabilities**: built-in tools and MCP servers
-4. **Behavior**: rules, skills, prompts
-5. **Review**: check the configuration and generate
+---
 
-Pick one target platform per harness. Only that platform's runtime is bundled.
+## What Packy is
 
-| Platform | Value | Installer |
+A specialized agent depends on more than a prompt. Its behavior is shaped by the runtime, model settings, tools, skills, rules, and commands surrounding it. Recreating that environment on another machine can mean repeating setup steps and copying files by hand.
+
+Packy treats the environment as a **build artifact**.
+
+\`\`\`text
+Agent definition
+  ├── Model and thinking settings
+  ├── Built-in tool selection
+  ├── Rules and system instructions
+  ├── Skills and prompt commands
+  └── Runtime
+          │
+          ▼
+    Packy generator
+          │
+          ▼
+  Versioned-style ZIP artifact
+  ├── Pi runtime
+  ├── Agent resources
+  ├── Package metadata
+  └── Installer and launcher
+          │
+          ▼
+      Install and run
+\`\`\`
+
+Packy is not a new agent runtime and does not modify Pi's core. Pi is the first runtime Packy packages; the longer-term product direction is a reproducible way to define, build, and distribute agent environments.
+
+## What works today
+
+- **Web-based builder** — configure an agent through a multi-step interface.
+- **Agent configuration** — set the name, description, model, thinking level, built-in tools, rules, skills, and prompt commands.
+- **Runtime bundling** — the generator downloads the pinned Pi v1.0.4 Windows x64 release and includes it in the package.
+- **Generated resources** — creates the agent settings, system instructions, skill files, prompt files, and package metadata.
+- **Windows installer** — packages an \`install.cmd\` script that installs the environment under the current user's profile and creates a launcher.
+- **Per-agent configuration directory** — the launcher sets \`PI_CODING_AGENT_DIR\` so the packaged agent's resources are kept in its own directory.
+- **Direct download** — the generated ZIP is returned to the browser. The current API does not maintain a package registry or persist generated packages as a product feature.
+
+### Platform support
+
+| Target | Status | Notes |
 | --- | --- | --- |
-| Windows x64 | `windows-x64` | `install.cmd` |
-| macOS Intel | `macos-x64` | `install.sh` |
-| macOS Apple Silicon | `macos-arm64` | `install.sh` |
+| Windows x64 | **Implemented** | Pi v1.0.4 binary and \`install.cmd\` are bundled. |
+| macOS Intel (x64) | Not implemented | A target is represented in the code, but runtime download/extraction is not implemented in the generator. |
+| macOS Apple Silicon (arm64) | Not implemented | A target is represented in the code, but runtime download/extraction is not implemented in the generator. |
+| Linux | Not implemented | No Linux packaging flow is implemented. |
 
-The generated ZIP is **streamed directly to the browser**. Nothing is stored on the server per generation.
+The current working path is **Windows x64**. Do not treat the other platform choices as supported until their full build and install flows have been implemented and tested.
 
-## Getting started
+## Quick start
 
-Requirements: Node.js 20+ and npm.
+### Requirements
 
-```bash
-npm install
-npm run prepare:pi   # one-time: downloads the pinned Pi runtimes into .runtime-cache/
+- Node.js 20.9 or newer
+- npm
+- An internet connection from the machine running Packy, so the generator can download the pinned Pi release from GitHub
+
+### Run locally
+
+\`\`\`bash
+git clone https://github.com/KrishCodesw/Packy.git
+cd Packy
+npm ci
 npm run dev
-```
+\`\`\`
 
-Open http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000).
 
-`prepare:pi` downloads Pi **v1.0.4** for Windows x64, macOS x64 and macOS arm64 from the official GitHub release and unpacks them into `.runtime-cache/`. Until it has run, `POST /api/generate` returns `503`.
+1. Configure the agent in the builder.
+2. Select **Windows x64** as the target platform.
+3. Review the configuration and generate the package.
+4. Save the downloaded ZIP.
+5. Extract it and run \`install.cmd\`.
 
-> The prepare script currently extracts archives with `powershell.exe` (zip) and `tar.exe` (tar.gz), so it is written for a Windows development machine.
+The current generation endpoint downloads Pi when a package is built, so \`npm run prepare:pi\` is **not required** for this flow. The repository still contains that Windows-oriented helper for preparing local runtime caches, but the current API path uses on-demand runtime download.
 
-## What a generated harness contains
+### Production build
 
-```
-<harness-name>.zip
-├── install.cmd | install.sh      # platform-specific installer
-├── README.md                     # install instructions for this harness
-├── harness.json                  # harness metadata (name, Pi version, model, platform)
-├── runtimes/<platform>/          # the bundled Pi runtime for the chosen platform
+\`\`\`bash
+npm run build
+npm run start
+\`\`\`
+
+The generator uses Node.js APIs and temporary filesystem storage. A deployment must allow outbound requests to GitHub and provide enough memory, writable temporary disk, and execution time to download the runtime and assemble the ZIP. The bundled Windows x64 Pi release archive is approximately 45 MB before packaging.
+
+## Build flow
+
+The current implementation follows this path:
+
+\`\`\`mermaid
+flowchart TD
+    A[Configure agent in browser] --> B[POST /api/generate]
+    B --> C[Check name and target]
+    C --> D[Download pinned Pi release]
+    D --> E[Extract Windows x64 runtime to temp directory]
+    E --> F[Generate agent files and harness.json]
+    F --> G[Bundle runtime, resources, and installer]
+    G --> H[Return application/zip]
+    H --> I[Browser downloads package]
+    I --> J[Remove temporary build files]
+\`\`\`
+
+The package is assembled for the selected target; it is not a running hosted agent. After installation, the bundled Pi executable runs locally on the user's machine.
+
+## What a generated package contains
+
+A generated archive has this shape:
+
+\`\`\`text
+<agent-name>.zip
+├── install.cmd
+├── README.md
+├── harness.json
+├── runtimes/
+│   └── windows-x64/
+│       └── pi.exe and runtime files
 └── agent/
-    ├── settings.json             # default model, thinking level, tools, resource globs
-    ├── mcp.json                  # MCP server configuration
-    ├── SYSTEM.md                 # description and operating rules
-    ├── skills/<skill>/SKILL.md
-    └── prompts/<prompt>.md
-```
+    ├── settings.json
+    ├── mcp.json
+    ├── SYSTEM.md
+    ├── skills/
+    │   └── <skill-name>/
+    │       └── SKILL.md
+    └── prompts/
+        └── <prompt-name>.md
+\`\`\`
 
-## Installing a generated harness
+| File or directory | Purpose |
+| --- | --- |
+| \`harness.json\` | Package metadata, agent name, pinned Pi version, model, thinking level, and target platform. |
+| \`runtimes/windows-x64/\` | The selected Pi runtime bundled with the generated package. |
+| \`agent/settings.json\` | Default model, thinking level, selected built-in tools, and resource paths. |
+| \`agent/SYSTEM.md\` | Agent identity, description, and operating rules. |
+| \`agent/skills/\` | Skill Markdown files generated from the configured skill names and descriptions. |
+| \`agent/prompts/\` | Prompt command files generated from the configured prompt names, descriptions, and bodies. |
+| \`agent/mcp.json\` | MCP configuration placeholder output; real server integration is not implemented yet. |
+| \`install.cmd\` | User-level installer that places the package and creates a command launcher. |
 
-**Windows**: run `install.cmd`, open a new terminal, then run `<harness-name>`.
+## Install and run
 
-**macOS**:
+On Windows:
 
-```bash
-chmod +x install.sh
-./install.sh
-```
+1. Extract the downloaded ZIP.
+2. Run \`install.cmd\`.
+3. Open a **new terminal** so the updated user PATH is loaded.
+4. Run the generated agent command. The command is based on the agent name; for example, an agent named \`Security Reviewer\` becomes \`security-reviewer\`.
 
-Restart your terminal, then run `<harness-name>`.
+The current installer places files under:
 
-The installer copies the harness to `~/.harness-builder/harnesses/<harness-name>/` and adds a launcher to `~/.harness-builder/bin/`, which it puts on your `PATH`. The launcher sets `PI_CODING_AGENT_DIR` to the harness's `agent/` directory and starts the bundled Pi, so harnesses stay isolated from each other and from any separate Pi install.
+\`\`\`text
+%USERPROFILE%\\.harness-builder\\
+├── harnesses\\
+│   └── <agent-name>\\
+└── bin\\
+    └── <agent-name>.cmd
+\`\`\`
 
-## Project layout
+The launcher points Pi to that package's \`agent/\` directory using \`PI_CODING_AGENT_DIR\`. This keeps each package's agent resources separate from other packaged environments and from a separately installed Pi setup.
 
-```
-app/page.tsx                  # the 5-step builder UI
-app/api/generate/route.ts     # validates input, streams the ZIP
-lib/harness.ts                # builds agent/ files and harness.json from the input
-scripts/prepare-pi-runtime.mjs  # downloads and unpacks Pi runtimes
-.runtime-cache/               # prepared runtimes (git-ignored)
-```
+> **Brand migration note:** some generated metadata, the npm package name, and the install directory still use the previous “Harness Builder” naming. The product/repository name is Packy, but those implementation identifiers have not all been renamed yet.
+
+### Credentials and external services
+
+Packy does **not** bundle API keys, provider credentials, or secrets. Before running an agent, configure the credentials required by the selected model provider using the mechanism supported by Pi. Keep secrets out of agent rules, prompts, package files, and source control.
+
+The generated package can include a runtime and agent resources, but it cannot eliminate external requirements such as model-provider access, network connectivity, or credentials for services the agent uses.
+
+## Configuration model
+
+The generator accepts a JSON object equivalent to the \`HarnessInput\` type in \`lib/harness.ts\`.
+
+Example request:
+
+\`\`\`json
+{
+  "name": "Security Reviewer",
+  "description": "Reviews code for correctness and common security issues.",
+  "model": "anthropic/claude-sonnet-4",
+  "thinking": "medium",
+  "tools": ["read", "grep", "find", "ls"],
+  "mcp": ["github"],
+  "skills": [
+    {
+      "name": "Code Review",
+      "description": "Review changes for correctness, maintainability, and common security issues."
+    }
+  ],
+  "rules": "Never expose secrets.\\nAsk before destructive operations.\\nPrefer small, verifiable changes.",
+  "prompts": [
+    {
+      "name": "review",
+      "description": "Review the current changes",
+      "body": "Review the current changes and report correctness risks and missing tests."
+    }
+  ],
+  "targetPlatform": "windows-x64"
+}
+\`\`\`
+
+The example describes the current input shape, not a promise that every selected capability is fully integrated. In particular, the current UI offers a fixed list of MCP names, but the generated \`mcp.json\` uses placeholder URLs under \`example.invalid\`. Those entries will not connect to real MCP servers.
 
 ## API
 
-`POST /api/generate` takes a JSON `HarnessInput` (see `lib/harness.ts`) including `targetPlatform`, and responds with `application/zip`. Errors are JSON:
+### \`POST /api/generate\`
+
+Accepts a JSON \`HarnessInput\` request and returns the generated ZIP.
+
+**Successful response**
+
+- HTTP \`200\`
+- Content type: \`application/zip\`
+- \`Content-Disposition\` includes the generated filename
+
+**Error response**
+
+Errors are returned as JSON with an \`error\` message. The current implementation uses:
 
 | Status | Meaning |
 | --- | --- |
-| 400 | missing `name`, or invalid `targetPlatform` |
-| 503 | the Pi runtime for that platform has not been prepared |
-| 500 | generation failed |
+| \`400\` | Missing agent name or an invalid/unrecognized target value. |
+| \`500\` | Runtime download, extraction, package assembly, or another generation error. |
 
-## Current limitations
+The API is an internal MVP interface and should not yet be treated as a stable public contract.
 
-- MCP servers are selectable (`github`, `postgres`, `filesystem`, `browser`), but the generated `mcp.json` currently uses **placeholder URLs**; real server definitions are not wired up yet.
-- Capabilities are hardcoded in the UI. A versioned marketplace of Skills, MCPs, Tools, Flows and Stacks, with dependency resolution and reproducible packaging, is planned but not implemented.
-- Runtimes are read from local disk (`.runtime-cache/`), so a hosted deployment will need them provided at build time or from object storage.
+## Development
+
+### Scripts
+
+| Command | Purpose |
+| --- | --- |
+| \`npm run dev\` | Start the local Next.js development server. |
+| \`npm run build\` | Build the production application. |
+| \`npm run start\` | Start the production server after a successful build. |
+| \`npm run prepare:pi\` | Legacy/local helper that downloads and prepares Pi v1.0.4 runtimes in \`.runtime-cache/\`. It is Windows-oriented and is not required by the current on-demand API generation path. |
+
+### Repository layout
+
+\`\`\`text
+app/
+├── api/
+│   └── generate/
+│       └── route.ts          # Generation endpoint and ZIP assembly
+├── page.tsx                  # Multi-step agent builder
+└── globals.css               # Application styles
+
+lib/
+├── harness.ts                # Input types and generated agent files
+└── pi-runtime.ts              # Pinned Pi release download and extraction
+
+scripts/
+└── prepare-pi-runtime.mjs    # Local runtime preparation helper
+
+.runtime-cache/               # Local runtime cache; git-ignored
+\`\`\`
+
+### Stack
+
+- [Next.js](https://nextjs.org/) 16
+- [React](https://react.dev/) 19
+- TypeScript
+- [yazl](https://github.com/thejoshwolfe/yazl) for ZIP creation
+- [adm-zip](https://github.com/cthackers/adm-zip) for ZIP extraction
+
+## Known limitations and safety notes
+
+- **Only Windows x64 generation is implemented.** The macOS target definitions and installer code are not evidence of working macOS support.
+- **MCP selection is a stub.** The generated server URLs are placeholders; real endpoints, authentication, and secret handling need to be implemented.
+- **Skills are scaffolds.** The current builder generates a skill file from each skill's name and description; there is no remote skill registry or dependency resolver.
+- **No registry or publishing flow yet.** Packages are downloaded from the current build request. Versioned package discovery, a Packy CLI, reproducible builds, and a marketplace are future work.
+- **No Packy-level signature or checksum yet.** Generated packages contain an executable runtime. Browsers and endpoint protection may warn about downloaded archives containing executables, especially when a download source has little reputation. Verify that you trust the source and inspect what you run; do not disable security protections just to bypass a warning.
+- **Builds depend on GitHub availability.** The current API fetches the pinned upstream Pi release on demand instead of serving from a managed runtime mirror.
+- **Generated installer paths still use legacy naming.** The \`.harness-builder\` directory and other old identifiers will be migrated separately.
+- **Automated tests are not yet documented in this repository.** At minimum, run \`npm run build\` before proposing a change.
+
+## Roadmap
+
+The following are possible next steps, not shipped features:
+
+- Complete and test packaging for macOS and Linux.
+- Replace MCP placeholders with validated server definitions and a secure way to supply credentials.
+- Introduce a declarative Packy package specification that can be built from the CLI as well as the web UI.
+- Add package validation, integrity checks, signatures, and reproducible builds.
+- Add a registry for installing and publishing versioned agent packages.
+- Support reusable components such as skills, prompts, tools, and complete agent environments.
+
+The goal is to make an agent environment something developers can build, distribute, and install—not a setup procedure they must repeat.
+
+## Licensing and attribution
+
+The repository does not currently include a license file for Packy's own source code. Do not assume Packy's code is released under an open-source license until one is added.
+
+The Pi v1.0.4 upstream release declares the [MIT License](https://github.com/earendil-works/pi/blob/v1.0.4/LICENSE). Pi remains a separate project with its own license and attribution requirements. Before distributing generated packages publicly, ensure the required upstream license notice is included with the bundled runtime and choose and document a license for Packy's own code.
+
+---
+
+**Packy — Your agent. Packaged.**

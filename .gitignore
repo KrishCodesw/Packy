@@ -63,3 +63,4 @@ coverage/
 
 .runtime-cache/
 public/generated/
+.test-dist/

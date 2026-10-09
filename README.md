@@ -97,25 +97,6 @@ npm run start
 
 The generator uses Node.js APIs and temporary filesystem storage. A deployment must allow outbound requests to GitHub and provide enough memory, writable temporary disk, and execution time to download the runtime and assemble the ZIP. The bundled Windows x64 Pi release archive is approximately 45 MB before packaging.
 
-## Build flow
-
-The current implementation follows this path:
-
-```mermaid
-flowchart TD
-    A[Configure agent in browser] --> B[POST /api/generate]
-    B --> C[Check name and target]
-    C --> D[Download pinned Pi release]
-    D --> E[Extract Windows x64 runtime to temp directory]
-    E --> F[Generate agent files and harness.json]
-    F --> G[Bundle runtime, resources, and installer]
-    G --> H[Return application/zip]
-    H --> I[Browser downloads package]
-    I --> J[Remove temporary build files]
-```
-
-The package is assembled for the selected target; it is not a running hosted agent. After installation, the bundled Pi executable runs locally on the user's machine.
-
 ## What a generated package contains
 
 A generated archive has this shape:
@@ -178,40 +159,6 @@ The launcher points Pi to that package's `agent/` directory using `PI_CODING_AGE
 Packy does **not** bundle API keys, provider credentials, or secrets. Before running an agent, configure the credentials required by the selected model provider using the mechanism supported by Pi. Keep secrets out of agent rules, prompts, package files, and source control.
 
 The generated package can include a runtime and agent resources, but it cannot eliminate external requirements such as model-provider access, network connectivity, or credentials for services the agent uses.
-
-## Configuration model
-
-The generator accepts a JSON object equivalent to the `HarnessInput` type in `lib/harness.ts`.
-
-Example request:
-
-```json
-{
-  "name": "Security Reviewer",
-  "description": "Reviews code for correctness and common security issues.",
-  "model": "anthropic/claude-sonnet-4",
-  "thinking": "medium",
-  "tools": ["read", "grep", "find", "ls"],
-  "mcp": ["github"],
-  "skills": [
-    {
-      "name": "Code Review",
-      "description": "Review changes for correctness, maintainability, and common security issues."
-    }
-  ],
-  "rules": "Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes.",
-  "prompts": [
-    {
-      "name": "review",
-      "description": "Review the current changes",
-      "body": "Review the current changes and report correctness risks and missing tests."
-    }
-  ],
-  "targetPlatform": "windows-x64"
-}
-```
-
-The example describes the current input shape, not a promise that every selected capability is fully integrated. In particular, the current UI offers a fixed list of MCP names, but the generated `mcp.json` uses placeholder URLs under `example.invalid`. Those entries will not connect to real MCP servers.
 
 ## API
 
@@ -299,11 +246,13 @@ The following are possible next steps, not shipped features:
 
 The goal is to make an agent environment something developers can build, distribute, and install—not a setup procedure they must repeat.
 
-## Licensing and attribution
+## License
 
-The repository does not currently include a license file for Packy's own source code. Do not assume Packy's code is released under an open-source license until one is added.
+Packy's own source code is licensed under the [MIT License](./LICENSE).
 
-The Pi v1.0.4 upstream release declares the [MIT License](https://github.com/earendil-works/pi/blob/v1.0.4/LICENSE). Pi remains a separate project with its own license and attribution requirements. Before distributing generated packages publicly, ensure the required upstream license notice is included with the bundled runtime and choose and document a license for Packy's own code.
+Packy bundles the Pi runtime from [earendil-works/pi](https://github.com/earendil-works/pi), pinned to v1.0.4. Pi is a separate project released under the MIT License, with its own copyright notice. Packy's license does not replace, modify, or relicense Pi or any other third-party component.
+
+Before publishing or redistributing a generated package, verify that the required Pi license and copyright notice are included alongside the bundled runtime. Third-party components remain subject to their respective licenses.
 
 ---
 

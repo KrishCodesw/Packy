@@ -185,6 +185,8 @@ The API is an internal MVP interface and should not yet be treated as a stable p
 
 ## Development
 
+Packy welcomes focused bug fixes, documentation improvements, and well-scoped features. Please read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before opening a pull request. Security issues should be reported according to [`SECURITY.md`](./SECURITY.md), not in a public issue. Participation follows the [`Code of Conduct`](./CODE_OF_CONDUCT.md).
+
 ### Scripts
 
 | Command | Purpose |
@@ -192,6 +194,8 @@ The API is an internal MVP interface and should not yet be treated as a stable p
 | `npm run dev` | Start the local Next.js development server. |
 | `npm run build` | Build the production application. |
 | `npm run start` | Start the production server after a successful build. |
+| `npm test` | Compile the harness generator for tests and run its Node.js unit tests. |
+| `npm run test:compile` | Compile `lib/harness.ts` into the temporary `.test-dist/` directory. |
 | `npm run prepare:pi` | Legacy/local helper that downloads and prepares Pi v1.0.4 runtimes in `.runtime-cache/`. It is Windows-oriented and is not required by the current on-demand API generation path. |
 
 ### Repository layout
@@ -210,6 +214,14 @@ lib/
 
 scripts/
 └── prepare-pi-runtime.mjs    # Local runtime preparation helper
+
+tests/
+└── harness.test.cjs         # Unit tests for generated agent files
+
+.github/
+├── ISSUE_TEMPLATE/           # Bug and feature-request forms
+├── workflows/ci.yml          # Pull-request and main-branch verification
+└── PULL_REQUEST_TEMPLATE.md
 
 .runtime-cache/               # Local runtime cache; git-ignored
 ```
@@ -231,7 +243,7 @@ scripts/
 - **No Packy-level signature or checksum yet.** Generated packages contain an executable runtime. Browsers and endpoint protection may warn about downloaded archives containing executables, especially when a download source has little reputation. Verify that you trust the source and inspect what you run; do not disable security protections just to bypass a warning.
 - **Builds depend on GitHub availability.** The current API fetches the pinned upstream Pi release on demand instead of serving from a managed runtime mirror.
 - **Generated installer paths still use legacy naming.** The `.harness-builder` directory and other old identifiers will be migrated separately.
-- **Automated tests are not yet documented in this repository.** At minimum, run `npm run build` before proposing a change.
+- **Unit-test coverage is currently focused on file generation.** The tests verify generated settings, metadata, rules, skill and prompt files, and the current MCP placeholder behaviour. They do not replace end-to-end testing of runtime download, ZIP assembly, or installation.
 
 ## Roadmap
 

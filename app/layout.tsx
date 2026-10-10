@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Packy — Your agent. Packaged.",
+    default: "Packy - Your agent. Packaged.",
     template: "%s — Packy",
   },
   description: "Build and package self-contained Pi agent environments.",

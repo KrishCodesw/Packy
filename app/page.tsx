@@ -12,11 +12,41 @@ import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
 import Textarea from "./components/ui/Textarea";
 
 const purposeOptions = [
-  { label: "Everyday assistant", name: "Everyday Harness", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sparkles" as IconName },
-  { label: "Writing & ideas", name: "Writing Harness", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "file-text" as IconName },
-  { label: "Research & learning", name: "Research Harness", description: "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.", icon: "book-open" as IconName },
-  { label: "Work & planning", name: "Work Planning Harness", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "layers" as IconName },
-  { label: "Coding & technical work", name: "Coding Harness", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "terminal" as IconName },
+  {
+    label: "Everyday assistant",
+    name: "Everyday Harness",
+    description:
+      "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.",
+    icon: "sparkles" as IconName,
+  },
+  {
+    label: "Writing & ideas",
+    name: "Writing Harness",
+    description:
+      "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.",
+    icon: "file-text" as IconName,
+  },
+  {
+    label: "Research & learning",
+    name: "Research Harness",
+    description:
+      "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.",
+    icon: "book-open" as IconName,
+  },
+  {
+    label: "Work & planning",
+    name: "Work Planning Harness",
+    description:
+      "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.",
+    icon: "layers" as IconName,
+  },
+  {
+    label: "Coding & technical work",
+    name: "Coding Harness",
+    description:
+      "Help me understand code, investigate issues, make careful changes, and explain technical decisions.",
+    icon: "terminal" as IconName,
+  },
 ];
 
 const steps: StepItem[] = [
@@ -32,13 +62,48 @@ const toolOptions: Array<{
   description: string;
   icon: IconName;
 }> = [
-  { value: "read", label: "Read files", description: "Inspect project files", icon: "file-text" },
-  { value: "write", label: "Write files", description: "Create new files", icon: "file-check" },
-  { value: "edit", label: "Edit files", description: "Apply focused changes", icon: "wrench" },
-  { value: "bash", label: "Terminal", description: "Run shell commands", icon: "terminal" },
-  { value: "grep", label: "Search content", description: "Find text across files", icon: "search" },
-  { value: "find", label: "Find paths", description: "Locate files and folders", icon: "folder" },
-  { value: "ls", label: "List files", description: "Inspect directory contents", icon: "layers" },
+  {
+    value: "read",
+    label: "Read files",
+    description: "Inspect project files",
+    icon: "file-text",
+  },
+  {
+    value: "write",
+    label: "Write files",
+    description: "Create new files",
+    icon: "file-check",
+  },
+  {
+    value: "edit",
+    label: "Edit files",
+    description: "Apply focused changes",
+    icon: "wrench",
+  },
+  {
+    value: "bash",
+    label: "Terminal",
+    description: "Run shell commands",
+    icon: "terminal",
+  },
+  {
+    value: "grep",
+    label: "Search content",
+    description: "Find text across files",
+    icon: "search",
+  },
+  {
+    value: "find",
+    label: "Find paths",
+    description: "Locate files and folders",
+    icon: "folder",
+  },
+  {
+    value: "ls",
+    label: "List files",
+    description: "Inspect directory contents",
+    icon: "layers",
+  },
 ];
 
 const mcpOptions: Array<{
@@ -47,20 +112,42 @@ const mcpOptions: Array<{
   description: string;
   icon: IconName;
 }> = [
-  { value: "github", label: "GitHub", description: "Repository and pull-request tools", icon: "git-branch" },
-  { value: "postgres", label: "PostgreSQL", description: "Database connectivity", icon: "command" },
-  { value: "filesystem", label: "Filesystem", description: "Local resource access", icon: "folder" },
-  { value: "browser", label: "Browser", description: "Web automation tools", icon: "globe" },
+  {
+    value: "github",
+    label: "GitHub",
+    description: "Repository and pull-request tools",
+    icon: "git-branch",
+  },
+  {
+    value: "postgres",
+    label: "PostgreSQL",
+    description: "Database connectivity",
+    icon: "command",
+  },
+  {
+    value: "filesystem",
+    label: "Filesystem",
+    description: "Local resource access",
+    icon: "folder",
+  },
+  {
+    value: "browser",
+    label: "Browser",
+    description: "Web automation tools",
+    icon: "globe",
+  },
 ];
 
 const initialSkills = [
   {
     name: "Clear Communication",
-    description: "Explain ideas clearly, adapt detail to the task, and organize answers so they are easy to use.",
+    description:
+      "Explain ideas clearly, adapt detail to the task, and organize answers so they are easy to use.",
   },
   {
     name: "Planning & Problem Solving",
-    description: "Break complex requests into manageable steps, state assumptions, and suggest practical next actions.",
+    description:
+      "Break complex requests into manageable steps, state assumptions, and suggest practical next actions.",
   },
 ];
 
@@ -70,12 +157,19 @@ type Notice = {
 };
 
 function slugify(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "my-agent";
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "my-agent"
+  );
 }
 
 export default function Home() {
   const [name, setName] = useState("Everyday Harness");
-  const [description, setDescription] = useState("Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.");
+  const [description, setDescription] = useState(
+    "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.",
+  );
   const [selectedPurpose, setSelectedPurpose] = useState("Everyday assistant");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [model, setModel] = useState("anthropic/claude-sonnet-4");
@@ -116,11 +210,31 @@ export default function Home() {
         },
       ],
     }),
-    [name, description, model, thinking, tools, mcps, targetPlatform, skills, rules, promptName, promptBody],
+    [
+      name,
+      description,
+      model,
+      thinking,
+      tools,
+      mcps,
+      targetPlatform,
+      skills,
+      rules,
+      promptName,
+      promptBody,
+    ],
   );
 
-  const toggle = (items: string[], value: string, setItems: (next: string[]) => void) => {
-    setItems(items.includes(value) ? items.filter((item) => item !== value) : [...items, value]);
+  const toggle = (
+    items: string[],
+    value: string,
+    setItems: (next: string[]) => void,
+  ) => {
+    setItems(
+      items.includes(value)
+        ? items.filter((item) => item !== value)
+        : [...items, value],
+    );
   };
 
   function goToStep(nextStep: number) {
@@ -130,11 +244,17 @@ export default function Home() {
 
   function continueStep() {
     if (step === 0 && !name.trim()) {
-      setNotice({ kind: "error", message: "Give this Harness a name before continuing." });
+      setNotice({
+        kind: "error",
+        message: "Give this Harness a name before continuing.",
+      });
       return;
     }
     if (step === 2 && (!promptName.trim() || !promptBody.trim())) {
-      setNotice({ kind: "error", message: "Add a prompt command name and its instructions." });
+      setNotice({
+        kind: "error",
+        message: "Add a prompt command name and its instructions.",
+      });
       return;
     }
     setNotice(null);
@@ -146,21 +266,41 @@ export default function Home() {
     const skillDescription = newSkillDescription.trim();
 
     if (!skillName || !skillDescription) {
-      setNotice({ kind: "error", message: "Add both a skill name and a short description." });
+      setNotice({
+        kind: "error",
+        message: "Add both a skill name and a short description.",
+      });
       return;
     }
-    if (skills.some((skill) => skill.name.toLowerCase() === skillName.toLowerCase())) {
-      setNotice({ kind: "error", message: "A skill with that name already exists." });
+    if (
+      skills.some(
+        (skill) => skill.name.toLowerCase() === skillName.toLowerCase(),
+      )
+    ) {
+      setNotice({
+        kind: "error",
+        message: "A skill with that name already exists.",
+      });
       return;
     }
 
-    setSkills((current) => [...current, { name: skillName, description: skillDescription }]);
+    setSkills((current) => [
+      ...current,
+      { name: skillName, description: skillDescription },
+    ]);
     setNewSkillName("");
     setNewSkillDescription("");
-    setNotice({ kind: "success", message: "Skill added to this package configuration." });
+    setNotice({
+      kind: "success",
+      message: "Skill added to this package configuration.",
+    });
   }
 
-  function updateSkill(index: number, field: "name" | "description", value: string) {
+  function updateSkill(
+    index: number,
+    field: "name" | "description",
+    value: string,
+  ) {
     setSkills((current) =>
       current.map((skill, currentIndex) =>
         currentIndex === index ? { ...skill, [field]: value } : skill,
@@ -169,13 +309,22 @@ export default function Home() {
   }
 
   function removeSkill(index: number) {
-    setSkills((current) => current.filter((_, currentIndex) => currentIndex !== index));
-    setNotice({ kind: "info", message: "Skill removed from this package configuration." });
+    setSkills((current) =>
+      current.filter((_, currentIndex) => currentIndex !== index),
+    );
+    setNotice({
+      kind: "info",
+      message: "Skill removed from this package configuration.",
+    });
   }
 
   async function generate() {
     if (!name.trim() || !promptName.trim() || !promptBody.trim()) {
-      setNotice({ kind: "error", message: "Complete the Harness name and instructions before creating it." });
+      setNotice({
+        kind: "error",
+        message:
+          "Complete the Harness name and instructions before creating it.",
+      });
       return;
     }
 
@@ -199,12 +348,19 @@ export default function Home() {
       }
 
       const expectedLengthHeader = response.headers.get("Content-Length");
-      const expectedLength = expectedLengthHeader ? Number(expectedLengthHeader) : null;
-      if (expectedLengthHeader && (!Number.isSafeInteger(expectedLength) || expectedLength! <= 0)) {
+      const expectedLength = expectedLengthHeader
+        ? Number(expectedLengthHeader)
+        : null;
+      if (
+        expectedLengthHeader &&
+        (!Number.isSafeInteger(expectedLength) || expectedLength! <= 0)
+      ) {
         throw new Error("The server returned an invalid package size.");
       }
       if (!response.body) {
-        throw new Error("Your browser could not read the package stream. Please try again.");
+        throw new Error(
+          "Your browser could not read the package stream. Please try again.",
+        );
       }
 
       // Read the response in chunks. Verify the full byte count before allowing a download.
@@ -219,7 +375,9 @@ export default function Home() {
             chunks.push(value);
             receivedLength += value.byteLength;
             if (expectedLength !== null && receivedLength > expectedLength) {
-              throw new Error("The package stream exceeded its declared size. No file was downloaded.");
+              throw new Error(
+                "The package stream exceeded its declared size. No file was downloaded.",
+              );
             }
           }
         }
@@ -232,13 +390,22 @@ export default function Home() {
         throw new Error("The generation endpoint returned an empty package.");
       }
       if (expectedLength !== null && receivedLength !== expectedLength) {
-        throw new Error(`The download was incomplete (${receivedLength} of ${expectedLength} bytes). Please try again.`);
+        throw new Error(
+          `The download was incomplete (${receivedLength} of ${expectedLength} bytes). Please try again.`,
+        );
       }
 
       // ZIP files start with PK and end with an end-of-central-directory record.
       const firstChunk = chunks[0];
-      if (!firstChunk || firstChunk.length < 4 || firstChunk[0] !== 0x50 || firstChunk[1] !== 0x4b) {
-        throw new Error("The server response is not a valid ZIP file. Please try again.");
+      if (
+        !firstChunk ||
+        firstChunk.length < 4 ||
+        firstChunk[0] !== 0x50 ||
+        firstChunk[1] !== 0x4b
+      ) {
+        throw new Error(
+          "The server response is not a valid ZIP file. Please try again.",
+        );
       }
       const tailLength = Math.min(receivedLength, 65_557);
       const tail = new Uint8Array(tailLength);
@@ -257,14 +424,25 @@ export default function Home() {
         if (tailOffset === tailLength) break;
       }
       let hasEndRecord = false;
-      for (let i = tail.length - 22; i >= Math.max(0, tail.length - 65_557); i--) {
-        if (tail[i] === 0x50 && tail[i + 1] === 0x4b && tail[i + 2] === 0x05 && tail[i + 3] === 0x06) {
+      for (
+        let i = tail.length - 22;
+        i >= Math.max(0, tail.length - 65_557);
+        i--
+      ) {
+        if (
+          tail[i] === 0x50 &&
+          tail[i + 1] === 0x4b &&
+          tail[i + 2] === 0x05 &&
+          tail[i + 3] === 0x06
+        ) {
           hasEndRecord = true;
           break;
         }
       }
       if (!hasEndRecord) {
-        throw new Error("The ZIP file is incomplete or damaged. Please try again.");
+        throw new Error(
+          "The ZIP file is incomplete or damaged. Please try again.",
+        );
       }
 
       // Copy each chunk into an ArrayBuffer. This avoids TypeScript's
@@ -290,12 +468,14 @@ export default function Home() {
 
       setNotice({
         kind: "success",
-        message: "Package downloaded. Extract the ZIP and run install.cmd on Windows.",
+        message:
+          "Package downloaded. Extract the ZIP and run install.cmd on Windows.",
       });
     } catch (error) {
       setNotice({
         kind: "error",
-        message: error instanceof Error ? error.message : "Package generation failed.",
+        message:
+          error instanceof Error ? error.message : "Package generation failed.",
       });
     } finally {
       setIsGenerating(false);
@@ -311,23 +491,49 @@ export default function Home() {
     <AppShell activeSection="builder" sectionLabel="Create Harness">
       <div className="page-heading">
         <div className="page-heading-copy">
-          <div className="eyebrow"><span className="eyebrow-marker" /> PACKY / HARNESS STUDIO</div>
+          {/* <div className="eyebrow"><span className="eyebrow-marker" /> PACKY / HARNESS STUDIO</div> */}
           <h1>Make a Harness that feels like yours.</h1>
           <p>Start with what you need. Shape the details when you’re ready.</p>
         </div>
         <div className="page-heading-meta">
-          <span className="status-label"><span className="status-dot" /> BUILDER READY</span>
+          <span className="status-label">
+            <span className="status-dot" /> BUILDER READY
+          </span>
           <span className="meta-divider" />
           <span className="meta-version">Pi v1.0.4</span>
         </div>
       </div>
 
       <nav className="builder-mode-switch" aria-label="Choose setup mode">
-        <button type="button" className={"builder-mode-option " + (!showAdvanced ? "active" : "")} onClick={() => { setShowAdvanced(false); setNotice(null); }} aria-pressed={!showAdvanced}>
-          <span className="mode-number">01</span><span><strong>Start with an idea</strong><small>A simple guided setup</small></span>
+        <button
+          type="button"
+          className={"builder-mode-option " + (!showAdvanced ? "active" : "")}
+          onClick={() => {
+            setShowAdvanced(false);
+            setNotice(null);
+          }}
+          aria-pressed={!showAdvanced}
+        >
+          <span className="mode-number">01</span>
+          <span>
+            <strong>Start with an idea</strong>
+            <small>A simple guided setup</small>
+          </span>
         </button>
-        <button type="button" className={"builder-mode-option " + (showAdvanced ? "active" : "")} onClick={() => { setShowAdvanced(true); setNotice(null); }} aria-pressed={showAdvanced}>
-          <span className="mode-number">02</span><span><strong>Customize your Harness</strong><small>Tools, rules and more</small></span>
+        <button
+          type="button"
+          className={"builder-mode-option " + (showAdvanced ? "active" : "")}
+          onClick={() => {
+            setShowAdvanced(true);
+            setNotice(null);
+          }}
+          aria-pressed={showAdvanced}
+        >
+          <span className="mode-number">02</span>
+          <span>
+            <strong>Customize your Harness</strong>
+            <small>Tools, rules and more</small>
+          </span>
         </button>
       </nav>
 
@@ -335,14 +541,26 @@ export default function Home() {
         <section className="welcome-builder" aria-labelledby="welcome-title">
           <div className="welcome-copy">
             <span className="welcome-eyebrow">A GOOD PLACE TO START</span>
-            <h2 id="welcome-title">What should your Harness help you accomplish?</h2>
-            <p>Choose a starting point or describe your own. You’re in control of the setup from the beginning.</p>
+            <h2 id="welcome-title">
+              What should your Harness help you accomplish?
+            </h2>
+            <p>
+              Choose a starting point or describe your own. You’re in control of
+              the setup from the beginning.
+            </p>
           </div>
 
-          <div className="purpose-grid" role="group" aria-label="Choose what your Harness will do">
+          <div
+            className="purpose-grid"
+            role="group"
+            aria-label="Choose what your Harness will do"
+          >
             {purposeOptions.map((purpose) => (
               <button
-                className={"purpose-card " + (selectedPurpose === purpose.label ? "selected" : "")}
+                className={
+                  "purpose-card " +
+                  (selectedPurpose === purpose.label ? "selected" : "")
+                }
                 type="button"
                 key={purpose.label}
                 onClick={() => {
@@ -354,7 +572,9 @@ export default function Home() {
                 aria-pressed={selectedPurpose === purpose.label}
               >
                 <span className="purpose-card-label">{purpose.label}</span>
-                <span className="purpose-card-check"><Icon name="check" size={14} /></span>
+                <span className="purpose-card-check">
+                  <Icon name="check" size={14} />
+                </span>
               </button>
             ))}
           </div>
@@ -382,410 +602,594 @@ export default function Home() {
 
           <div className="welcome-footer">
             <div className="platform-choice-block">
-              <span className="platform-choice-label">CHOOSE YOUR PLATFORM</span>
-              <div className="platform-choice-options" role="group" aria-label="Target platform">
+              <span className="platform-choice-label">
+                CHOOSE YOUR PLATFORM
+              </span>
+              <div
+                className="platform-choice-options"
+                role="group"
+                aria-label="Target platform"
+              >
                 <div className="platform-choice available" aria-current="true">
                   <Icon name="monitor" size={18} />
-                  <span><strong>Windows x64</strong><small>Available now</small></span>
+                  <span>
+                    <strong>Windows x64</strong>
+                    <small>Available now</small>
+                  </span>
                   <Icon name="circle-check" size={16} />
                 </div>
-                <div className="platform-choice unavailable" aria-disabled="true">
+                <div
+                  className="platform-choice unavailable"
+                  aria-disabled="true"
+                >
                   <Icon name="monitor" size={18} />
-                  <span><strong>macOS</strong><small>Not available yet</small></span>
+                  <span>
+                    <strong>macOS</strong>
+                    <small>Not available yet</small>
+                  </span>
                 </div>
-                <div className="platform-choice unavailable" aria-disabled="true">
+                <div
+                  className="platform-choice unavailable"
+                  aria-disabled="true"
+                >
                   <Icon name="terminal" size={18} />
-                  <span><strong>Linux</strong><small>Not available yet</small></span>
+                  <span>
+                    <strong>Linux</strong>
+                    <small>Not available yet</small>
+                  </span>
                 </div>
               </div>
             </div>
-            <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
+            <Button
+              onClick={generate}
+              loading={isGenerating}
+              disabled={isGenerating}
+            >
               <Icon name="package" size={16} /> Create my Harness
             </Button>
           </div>
 
           {notice && (
-            <div className={"notice notice-" + notice.kind} role={notice.kind === "error" ? "alert" : "status"} aria-live="polite">
-              <Icon name={notice.kind === "success" ? "circle-check" : notice.kind === "error" ? "alert-circle" : "info"} size={17} />
-              <p>{notice.message}</p>
-              {notice.kind === "error" && <button type="button" className="notice-dismiss" onClick={() => setNotice(null)} aria-label="Dismiss message"><Icon name="x" size={14} /></button>}
-            </div>
-          )}
-
-        </section>
-      )}
-
-      {showAdvanced && <div className="builder-layout">
-        <section className="builder-column" aria-label="Harness configuration">
-          <div className="builder-toolbar">
-            <div>
-              <span className="toolbar-kicker">CUSTOMIZE</span>
-              <span className="toolbar-title">Customize your Harness</span>
-            </div>
-            <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 04</span>
-          </div>
-
-          <StepsIndicator steps={steps} currentStep={step} onChange={goToStep} />
-
-          <div className="step-panel" key={step}>
-            {step === 0 && (
-              <>
-                <div className="section-heading">
-                  <span className="section-index">01</span>
-                  <div>
-                    <h2>Define your Harness</h2>
-                    <p>Set a name and describe what this Harness is for.</p>
-                  </div>
-                </div>
-
-                <div className="form-stack">
-                  <Input
-                    label="Harness name"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="e.g. Security Reviewer"
-                    helperText="This becomes the name shown in your package metadata."
-                    required
-                    maxLength={80}
-                  />
-                  <Textarea
-                    label="What should this Harness do?"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder="Describe the agent's purpose, the work it handles, and where it should focus."
-                    rows={4}
-                    required
-                    maxLength={500}
-                    helperText="Keep it specific. This description is included in the generated system instructions."
-                  />
-                  <div className="slug-preview">
-                    <span className="slug-preview-icon"><Icon name="package" size={16} /></span>
-                    <span className="slug-preview-label">PACKAGE FILENAME</span>
-                    <code>{packageSlug}.zip</code>
-                  </div>
-                  <div className="platform-choice-block advanced-platform-choice">
-                    <span className="platform-choice-label">TARGET PLATFORM</span>
-                    <div className="platform-choice-options" role="group" aria-label="Target platform">
-                      <div className="platform-choice available" aria-current="true">
-                        <Icon name="monitor" size={18} />
-                        <span><strong>Windows x64</strong><small>Available now</small></span>
-                        <Icon name="circle-check" size={16} />
-                      </div>
-                      <div className="platform-choice unavailable" aria-disabled="true">
-                        <Icon name="monitor" size={18} />
-                        <span><strong>macOS</strong><small>Not available yet</small></span>
-                      </div>
-                      <div className="platform-choice unavailable" aria-disabled="true">
-                        <Icon name="terminal" size={18} />
-                        <span><strong>Linux</strong><small>Not available yet</small></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {step === 1 && (
-              <>
-                <div className="section-heading">
-                  <span className="section-index">02</span>
-                  <div>
-                    <h2>Choose its capabilities</h2>
-                    <p>Start with the built-in tools this Harness should have available.</p>
-                  </div>
-                </div>
-
-                <div className="field">
-                  <div className="field-header">
-                    <label className="field-label">BUILT-IN TOOLS</label>
-                    <span className="selection-count">{activeToolCount} selected</span>
-                  </div>
-                  <div className="option-grid">
-                    {toolOptions.map((tool) => (
-                      <Checkbox
-                        key={tool.value}
-                        label={tool.label}
-                        description={tool.description}
-                        checked={tools.includes(tool.value)}
-                        onChange={() => toggle(tools, tool.value, setTools)}
-                        icon={<Icon name={tool.icon} size={17} />}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-divider" />
-
-                <div className="field">
-                  <div className="field-header">
-                    <label className="field-label">MCP SERVER SELECTION</label>
-                    <span className="preview-badge">PREVIEW ONLY</span>
-                  </div>
-                  <div className="option-grid option-grid-two">
-                    {mcpOptions.map((mcp) => (
-                      <Checkbox
-                        key={mcp.value}
-                        label={mcp.label}
-                        description={mcp.description}
-                        checked={mcps.includes(mcp.value)}
-                        onChange={() => toggle(mcps, mcp.value, setMcps)}
-                        icon={<Icon name={mcp.icon} size={17} />}
-                      />
-                    ))}
-                  </div>
-                  <div className="notice notice-warning">
-                    <Icon name="info" size={16} />
-                    <p>MCP choices currently generate placeholder entries, not live connections. Real endpoints and authentication are not implemented yet.</p>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <div className="section-heading">
-                  <span className="section-index">03</span>
-                  <div>
-                    <h2>Set its behavior</h2>
-                    <p>Write operating rules, reusable skills, and a prompt command for the agent.</p>
-                  </div>
-                </div>
-
-                <div className="form-stack">
-                  <Textarea
-                    label="Operating rules"
-                    value={rules}
-                    onChange={(event) => setRules(event.target.value)}
-                    placeholder={"Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."}
-                    rows={4}
-                    helperText="One rule per line. These are written into SYSTEM.md."
-                  />
-
-                  <div className="form-divider" />
-
-                  <div className="section-subheading">
-                    <div>
-                      <h3>Skills</h3>
-                      <p>Give the agent reusable instructions for specific tasks.</p>
-                    </div>
-                    <span className="selection-count">{skills.length} {skills.length === 1 ? "skill" : "skills"}</span>
-                  </div>
-
-                  {skills.length > 0 ? (
-                    <div className="skill-list">
-                      {skills.map((skill, index) => (
-                        <div className="skill-editor" key={index}>
-                          <div className="skill-editor-top">
-                            <span className="skill-file-icon"><Icon name="file-text" size={16} /></span>
-                            <span className="skill-file-label">SKILL.md</span>
-                            <button
-                              type="button"
-                              className="icon-button subtle-danger"
-                              onClick={() => removeSkill(index)}
-                              aria-label={"Remove " + skill.name}
-                              title="Remove skill"
-                            >
-                              <Icon name="trash" size={15} />
-                            </button>
-                          </div>
-                          <div className="skill-editor-fields">
-                            <Input
-                              label="Skill name"
-                              value={skill.name}
-                              onChange={(event) => updateSkill(index, "name", event.target.value)}
-                              required
-                            />
-                            <Input
-                              label="Description"
-                              value={skill.description}
-                              onChange={(event) => updateSkill(index, "description", event.target.value)}
-                              required
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="empty-skills">
-                      <Icon name="layers" size={20} />
-                      <span>No skills added. You can still build a package without custom skills.</span>
-                    </div>
-                  )}
-
-                  <div className="add-skill-card">
-                    <div className="add-skill-title"><Icon name="plus" size={16} /> Add a skill</div>
-                    <div className="skill-editor-fields">
-                      <Input
-                        label="Skill name"
-                        value={newSkillName}
-                        onChange={(event) => setNewSkillName(event.target.value)}
-                        placeholder="e.g. Security Review"
-                      />
-                      <Input
-                        label="Short description"
-                        value={newSkillDescription}
-                        onChange={(event) => setNewSkillDescription(event.target.value)}
-                        placeholder="What should the skill guide?"
-                      />
-                    </div>
-                    <div className="add-skill-action">
-                      <Button variant="secondary" size="sm" onClick={addSkill}>
-                        <Icon name="plus" size={14} /> Add skill
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="form-divider" />
-
-                  <div className="section-subheading">
-                    <div>
-                      <h3>Prompt command</h3>
-                      <p>A named instruction the user can invoke in Pi.</p>
-                    </div>
-                  </div>
-                  <Input
-                    label="Command name"
-                    value={promptName}
-                    onChange={(event) => setPromptName(event.target.value)}
-                    placeholder="review"
-                    required
-                  />
-                  <Textarea
-                    label="Prompt instructions"
-                    value={promptBody}
-                    onChange={(event) => setPromptBody(event.target.value)}
-                    placeholder="Describe the steps and output expected from this command."
-                    rows={4}
-                    required
-                  />
-                </div>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <div className="section-heading">
-                  <span className="section-index">04</span>
-                  <div>
-                    <h2>Review your package</h2>
-                    <p>Check the generated configuration before creating the downloadable ZIP.</p>
-                  </div>
-                </div>
-
-                <div className="review-summary-banner">
-                  <span className="review-check"><Icon name="check" size={18} /></span>
-                  <div>
-                    <strong>Configuration ready for build</strong>
-                    <p>Packy will assemble the runtime and selected resources into one package.</p>
-                  </div>
-                  <span className="platform-tag"><Icon name="monitor" size={13} /> {platformName}</span>
-                </div>
-
-                <div className="review-table">
-                  <div className="review-row">
-                    <span>Package name</span>
-                    <strong>{name || "Untitled agent"}</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>Built-in tools</span>
-                    <strong>{tools.length} selected</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>Skills</span>
-                    <strong>{skills.length} included</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>MCP entries</span>
-                    <strong>{mcps.length} placeholder {mcps.length === 1 ? "entry" : "entries"}</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>Prompt commands</span>
-                    <strong>{promptName.trim() ? "1 configured" : "None"}</strong>
-                  </div>
-                </div>
-
-                <Preview label="PACKAGE CONTENTS">
-                  {packageSlug + ".zip"}{"\n"}
-                  {"├── install.cmd\n"}
-                  {"├── README.md\n"}
-                  {"├── harness.json\n"}
-                  {"├── runtimes/windows-x64/\n"}
-                  {"└── agent/\n"}
-                  {"    ├── settings.json\n"}
-                  {"    ├── mcp.json\n"}
-                  {"    ├── SYSTEM.md\n"}
-                  {"    ├── skills/\n"}
-                  {"    └── prompts/"}
-                </Preview>
-
-                {mcps.length > 0 && (
-                  <div className="notice notice-warning review-warning">
-                    <Icon name="info" size={16} />
-                    <p>MCP entries use placeholder URLs in this version. Unselect them if you do not want placeholder definitions in the package.</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="builder-actions">
-            <Button
-              variant="secondary"
-              onClick={() => goToStep(step - 1)}
-              disabled={step === 0 || isGenerating}
+            <div
+              className={"notice notice-" + notice.kind}
+              role={notice.kind === "error" ? "alert" : "status"}
+              aria-live="polite"
             >
-              <Icon name="arrow-left" size={15} /> Back
-            </Button>
-            <div className="action-middle">
-              <span className="action-step">{String(step + 1).padStart(2, "0")} / 04</span>
-              <span className="action-step-track"><span style={{ width: ((step + 1) / steps.length * 100) + "%" }} /></span>
-            </div>
-            {step < steps.length - 1 ? (
-              <Button onClick={continueStep} disabled={isGenerating}>
-                Continue <Icon name="arrow-right" size={15} />
-              </Button>
-            ) : (
-              <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
-                <Icon name="download" size={15} /> Build & download
-              </Button>
-            )}
-          </div>
-
-          {notice && (
-            <div className={"notice notice-" + notice.kind} role={notice.kind === "error" ? "alert" : "status"} aria-live="polite">
               <Icon
-                name={notice.kind === "success" ? "circle-check" : notice.kind === "error" ? "alert-circle" : "info"}
+                name={
+                  notice.kind === "success"
+                    ? "circle-check"
+                    : notice.kind === "error"
+                      ? "alert-circle"
+                      : "info"
+                }
                 size={17}
               />
               <p>{notice.message}</p>
               {notice.kind === "error" && (
-                <button type="button" className="notice-dismiss" onClick={() => setNotice(null)} aria-label="Dismiss message">
+                <button
+                  type="button"
+                  className="notice-dismiss"
+                  onClick={() => setNotice(null)}
+                  aria-label="Dismiss message"
+                >
                   <Icon name="x" size={14} />
                 </button>
               )}
             </div>
           )}
         </section>
+      )}
 
-        <aside className="inspector-column" aria-label="Package summary">
-          <div className="package-summary-card">
-            <span className="package-summary-label">YOUR HARNESS</span>
-            <h2>{name.trim() || "Untitled Harness"}</h2>
-            <p className="package-summary-filename">{packageSlug}.zip</p>
-            <div className="package-summary-platform">
-              <Icon name="monitor" size={15} />
-              <span>Windows x64</span>
-              <span className="package-summary-status">Ready to build</span>
+      {showAdvanced && (
+        <div className="builder-layout">
+          <section
+            className="builder-column"
+            aria-label="Harness configuration"
+          >
+            <div className="builder-toolbar">
+              <div>
+                <span className="toolbar-kicker">CUSTOMIZE</span>
+                <span className="toolbar-title">Customize your Harness</span>
+              </div>
+              <span className="toolbar-progress">
+                STEP {String(step + 1).padStart(2, "0")} <span>/</span> 04
+              </span>
             </div>
-            <div className="package-summary-divider" />
-            <div className="package-summary-counts">
-              <div><strong>{activeToolCount}</strong><span>Tools</span></div>
-              <div><strong>{skills.length}</strong><span>Skills</span></div>
-              <div><strong>{activeMcpCount}</strong><span>Connections</span></div>
+
+            <StepsIndicator
+              steps={steps}
+              currentStep={step}
+              onChange={goToStep}
+            />
+
+            <div className="step-panel" key={step}>
+              {step === 0 && (
+                <>
+                  <div className="section-heading">
+                    <span className="section-index">01</span>
+                    <div>
+                      <h2>Define your Harness</h2>
+                      <p>Set a name and describe what this Harness is for.</p>
+                    </div>
+                  </div>
+
+                  <div className="form-stack">
+                    <Input
+                      label="Harness name"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      placeholder="e.g. Security Reviewer"
+                      helperText="This becomes the name shown in your package metadata."
+                      required
+                      maxLength={80}
+                    />
+                    <Textarea
+                      label="What should this Harness do?"
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      placeholder="Describe the agent's purpose, the work it handles, and where it should focus."
+                      rows={4}
+                      required
+                      maxLength={500}
+                      helperText="Keep it specific. This description is included in the generated system instructions."
+                    />
+                    <div className="slug-preview">
+                      <span className="slug-preview-icon">
+                        <Icon name="package" size={16} />
+                      </span>
+                      <span className="slug-preview-label">
+                        PACKAGE FILENAME
+                      </span>
+                      <code>{packageSlug}.zip</code>
+                    </div>
+                    <div className="platform-choice-block advanced-platform-choice">
+                      <span className="platform-choice-label">
+                        TARGET PLATFORM
+                      </span>
+                      <div
+                        className="platform-choice-options"
+                        role="group"
+                        aria-label="Target platform"
+                      >
+                        <div
+                          className="platform-choice available"
+                          aria-current="true"
+                        >
+                          <Icon name="monitor" size={18} />
+                          <span>
+                            <strong>Windows x64</strong>
+                            <small>Available now</small>
+                          </span>
+                          <Icon name="circle-check" size={16} />
+                        </div>
+                        <div
+                          className="platform-choice unavailable"
+                          aria-disabled="true"
+                        >
+                          <Icon name="monitor" size={18} />
+                          <span>
+                            <strong>macOS</strong>
+                            <small>Not available yet</small>
+                          </span>
+                        </div>
+                        <div
+                          className="platform-choice unavailable"
+                          aria-disabled="true"
+                        >
+                          <Icon name="terminal" size={18} />
+                          <span>
+                            <strong>Linux</strong>
+                            <small>Not available yet</small>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 1 && (
+                <>
+                  <div className="section-heading">
+                    <span className="section-index">02</span>
+                    <div>
+                      <h2>Choose its capabilities</h2>
+                      <p>
+                        Start with the built-in tools this Harness should have
+                        available.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="field">
+                    <div className="field-header">
+                      <label className="field-label">BUILT-IN TOOLS</label>
+                      <span className="selection-count">
+                        {activeToolCount} selected
+                      </span>
+                    </div>
+                    <div className="option-grid">
+                      {toolOptions.map((tool) => (
+                        <Checkbox
+                          key={tool.value}
+                          label={tool.label}
+                          description={tool.description}
+                          checked={tools.includes(tool.value)}
+                          onChange={() => toggle(tools, tool.value, setTools)}
+                          icon={<Icon name={tool.icon} size={17} />}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-divider" />
+
+                  <div className="field">
+                    <div className="field-header">
+                      <label className="field-label">
+                        MCP SERVER SELECTION
+                      </label>
+                      <span className="preview-badge">PREVIEW ONLY</span>
+                    </div>
+                    <div className="option-grid option-grid-two">
+                      {mcpOptions.map((mcp) => (
+                        <Checkbox
+                          key={mcp.value}
+                          label={mcp.label}
+                          description={mcp.description}
+                          checked={mcps.includes(mcp.value)}
+                          onChange={() => toggle(mcps, mcp.value, setMcps)}
+                          icon={<Icon name={mcp.icon} size={17} />}
+                        />
+                      ))}
+                    </div>
+                    <div className="notice notice-warning">
+                      <Icon name="info" size={16} />
+                      <p>
+                        MCP choices currently generate placeholder entries, not
+                        live connections. Real endpoints and authentication are
+                        not implemented yet.
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 2 && (
+                <>
+                  <div className="section-heading">
+                    <span className="section-index">03</span>
+                    <div>
+                      <h2>Set its behavior</h2>
+                      <p>
+                        Write operating rules, reusable skills, and a prompt
+                        command for the agent.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="form-stack">
+                    <Textarea
+                      label="Operating rules"
+                      value={rules}
+                      onChange={(event) => setRules(event.target.value)}
+                      placeholder={
+                        "Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."
+                      }
+                      rows={4}
+                      helperText="One rule per line. These are written into SYSTEM.md."
+                    />
+
+                    <div className="form-divider" />
+
+                    <div className="section-subheading">
+                      <div>
+                        <h3>Skills</h3>
+                        <p>
+                          Give the agent reusable instructions for specific
+                          tasks.
+                        </p>
+                      </div>
+                      <span className="selection-count">
+                        {skills.length}{" "}
+                        {skills.length === 1 ? "skill" : "skills"}
+                      </span>
+                    </div>
+
+                    {skills.length > 0 ? (
+                      <div className="skill-list">
+                        {skills.map((skill, index) => (
+                          <div className="skill-editor" key={index}>
+                            <div className="skill-editor-top">
+                              <span className="skill-file-icon">
+                                <Icon name="file-text" size={16} />
+                              </span>
+                              <span className="skill-file-label">SKILL.md</span>
+                              <button
+                                type="button"
+                                className="icon-button subtle-danger"
+                                onClick={() => removeSkill(index)}
+                                aria-label={"Remove " + skill.name}
+                                title="Remove skill"
+                              >
+                                <Icon name="trash" size={15} />
+                              </button>
+                            </div>
+                            <div className="skill-editor-fields">
+                              <Input
+                                label="Skill name"
+                                value={skill.name}
+                                onChange={(event) =>
+                                  updateSkill(index, "name", event.target.value)
+                                }
+                                required
+                              />
+                              <Input
+                                label="Description"
+                                value={skill.description}
+                                onChange={(event) =>
+                                  updateSkill(
+                                    index,
+                                    "description",
+                                    event.target.value,
+                                  )
+                                }
+                                required
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-skills">
+                        <Icon name="layers" size={20} />
+                        <span>
+                          No skills added. You can still build a package without
+                          custom skills.
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="add-skill-card">
+                      <div className="add-skill-title">
+                        <Icon name="plus" size={16} /> Add a skill
+                      </div>
+                      <div className="skill-editor-fields">
+                        <Input
+                          label="Skill name"
+                          value={newSkillName}
+                          onChange={(event) =>
+                            setNewSkillName(event.target.value)
+                          }
+                          placeholder="e.g. Security Review"
+                        />
+                        <Input
+                          label="Short description"
+                          value={newSkillDescription}
+                          onChange={(event) =>
+                            setNewSkillDescription(event.target.value)
+                          }
+                          placeholder="What should the skill guide?"
+                        />
+                      </div>
+                      <div className="add-skill-action">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={addSkill}
+                        >
+                          <Icon name="plus" size={14} /> Add skill
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="form-divider" />
+
+                    <div className="section-subheading">
+                      <div>
+                        <h3>Prompt command</h3>
+                        <p>A named instruction the user can invoke in Pi.</p>
+                      </div>
+                    </div>
+                    <Input
+                      label="Command name"
+                      value={promptName}
+                      onChange={(event) => setPromptName(event.target.value)}
+                      placeholder="review"
+                      required
+                    />
+                    <Textarea
+                      label="Prompt instructions"
+                      value={promptBody}
+                      onChange={(event) => setPromptBody(event.target.value)}
+                      placeholder="Describe the steps and output expected from this command."
+                      rows={4}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <div className="section-heading">
+                    <span className="section-index">04</span>
+                    <div>
+                      <h2>Review your package</h2>
+                      <p>
+                        Check the generated configuration before creating the
+                        downloadable ZIP.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="review-summary-banner">
+                    <span className="review-check">
+                      <Icon name="check" size={18} />
+                    </span>
+                    <div>
+                      <strong>Configuration ready for build</strong>
+                      <p>
+                        Packy will assemble the runtime and selected resources
+                        into one package.
+                      </p>
+                    </div>
+                    <span className="platform-tag">
+                      <Icon name="monitor" size={13} /> {platformName}
+                    </span>
+                  </div>
+
+                  <div className="review-table">
+                    <div className="review-row">
+                      <span>Package name</span>
+                      <strong>{name || "Untitled agent"}</strong>
+                    </div>
+                    <div className="review-row">
+                      <span>Built-in tools</span>
+                      <strong>{tools.length} selected</strong>
+                    </div>
+                    <div className="review-row">
+                      <span>Skills</span>
+                      <strong>{skills.length} included</strong>
+                    </div>
+                    <div className="review-row">
+                      <span>MCP entries</span>
+                      <strong>
+                        {mcps.length} placeholder{" "}
+                        {mcps.length === 1 ? "entry" : "entries"}
+                      </strong>
+                    </div>
+                    <div className="review-row">
+                      <span>Prompt commands</span>
+                      <strong>
+                        {promptName.trim() ? "1 configured" : "None"}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <Preview label="PACKAGE CONTENTS">
+                    {packageSlug + ".zip"}
+                    {"\n"}
+                    {"├── install.cmd\n"}
+                    {"├── README.md\n"}
+                    {"├── harness.json\n"}
+                    {"├── runtimes/windows-x64/\n"}
+                    {"└── agent/\n"}
+                    {"    ├── settings.json\n"}
+                    {"    ├── mcp.json\n"}
+                    {"    ├── SYSTEM.md\n"}
+                    {"    ├── skills/\n"}
+                    {"    └── prompts/"}
+                  </Preview>
+
+                  {mcps.length > 0 && (
+                    <div className="notice notice-warning review-warning">
+                      <Icon name="info" size={16} />
+                      <p>
+                        MCP entries use placeholder URLs in this version.
+                        Unselect them if you do not want placeholder definitions
+                        in the package.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          </div>
-        </aside>
-      </div>}
+
+            <div className="builder-actions">
+              <Button
+                variant="secondary"
+                onClick={() => goToStep(step - 1)}
+                disabled={step === 0 || isGenerating}
+              >
+                <Icon name="arrow-left" size={15} /> Back
+              </Button>
+              <div className="action-middle">
+                <span className="action-step">
+                  {String(step + 1).padStart(2, "0")} / 04
+                </span>
+                <span className="action-step-track">
+                  <span
+                    style={{ width: ((step + 1) / steps.length) * 100 + "%" }}
+                  />
+                </span>
+              </div>
+              {step < steps.length - 1 ? (
+                <Button onClick={continueStep} disabled={isGenerating}>
+                  Continue <Icon name="arrow-right" size={15} />
+                </Button>
+              ) : (
+                <Button
+                  onClick={generate}
+                  loading={isGenerating}
+                  disabled={isGenerating}
+                >
+                  <Icon name="download" size={15} /> Build & download
+                </Button>
+              )}
+            </div>
+
+            {notice && (
+              <div
+                className={"notice notice-" + notice.kind}
+                role={notice.kind === "error" ? "alert" : "status"}
+                aria-live="polite"
+              >
+                <Icon
+                  name={
+                    notice.kind === "success"
+                      ? "circle-check"
+                      : notice.kind === "error"
+                        ? "alert-circle"
+                        : "info"
+                  }
+                  size={17}
+                />
+                <p>{notice.message}</p>
+                {notice.kind === "error" && (
+                  <button
+                    type="button"
+                    className="notice-dismiss"
+                    onClick={() => setNotice(null)}
+                    aria-label="Dismiss message"
+                  >
+                    <Icon name="x" size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+
+          <aside className="inspector-column" aria-label="Package summary">
+            <div className="package-summary-card">
+              <span className="package-summary-label">YOUR HARNESS</span>
+              <h2>{name.trim() || "Untitled Harness"}</h2>
+              <p className="package-summary-filename">{packageSlug}.zip</p>
+              <div className="package-summary-platform">
+                <Icon name="monitor" size={15} />
+                <span>Windows x64</span>
+                <span className="package-summary-status">Ready to build</span>
+              </div>
+              <div className="package-summary-divider" />
+              <div className="package-summary-counts">
+                <div>
+                  <strong>{activeToolCount}</strong>
+                  <span>Tools</span>
+                </div>
+                <div>
+                  <strong>{skills.length}</strong>
+                  <span>Skills</span>
+                </div>
+                <div>
+                  <strong>{activeMcpCount}</strong>
+                  <span>Connections</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
     </AppShell>
   );
 }

@@ -3091,3 +3091,58 @@ button.btn, .btn { font-size: 14px; line-height: 1.4; }
   .builder-mode-option small { font-size: 11px; }
   .purpose-card-label { font-size: 13px; }
 }
+
+
+/* Platform choice now lives alongside Harness identity */
+.platform-choice-block {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #e9eae4;
+}
+.platform-choice-label {
+  display: block;
+  margin-bottom: 11px;
+  color: #5e6459;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .07em;
+}
+.platform-choice-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.platform-choice {
+  display: flex;
+  min-width: 0;
+  min-height: 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e6e8e0;
+  border-radius: 9px;
+  background: #fff;
+  color: #666c61;
+}
+.platform-choice > svg { flex: 0 0 auto; }
+.platform-choice > span { flex: 1; min-width: 0; }
+.platform-choice strong, .platform-choice small { display: block; }
+.platform-choice strong { color: #353a31; font-size: 13px; font-weight: 600; line-height: 1.4; }
+.platform-choice small { margin-top: 3px; color: #70766b; font-size: 11px; line-height: 1.4; }
+.platform-choice.available {
+  border-color: #8b9580;
+  background: #f8f9f5;
+  color: #56634c;
+}
+.platform-choice.available > svg:last-child { color: #58674d; }
+.platform-choice.unavailable {
+  background: #fafaf8;
+  color: #999d94;
+}
+.platform-choice.unavailable strong { color: #777d72; }
+.platform-choice.unavailable small { color: #92968e; }
+.advanced-platform-choice { margin-top: 24px; }
+@media (max-width: 640px) {
+  .platform-choice-options { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .platform-choice { min-height: 60px; padding: 10px 12px; }
+}

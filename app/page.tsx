@@ -13,11 +13,11 @@ import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
 import Textarea from "./components/ui/Textarea";
 
 const purposeOptions = [
-  { label: "Everyday assistant", name: "My personal assistant", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sun" as IconName },
-  { label: "Writing & ideas", name: "Writing companion", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "pen-line" as IconName },
+  { label: "Everyday assistant", name: "My personal assistant", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sparkles" as IconName },
+  { label: "Writing & ideas", name: "Writing companion", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "file-text" as IconName },
   { label: "Research & learning", name: "Research companion", description: "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.", icon: "book-open" as IconName },
-  { label: "Work & planning", name: "Work organizer", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "calendar-check" as IconName },
-  { label: "Coding & technical work", name: "Coding assistant", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "code" as IconName },
+  { label: "Work & planning", name: "Work organizer", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "layers" as IconName },
+  { label: "Coding & technical work", name: "Coding assistant", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "terminal" as IconName },
 ];
 
 const steps: StepItem[] = [
@@ -57,12 +57,12 @@ const mcpOptions: Array<{
 
 const initialSkills = [
   {
-    name: "Code Review",
-    description: "Review code for correctness, maintainability, and common security issues.",
+    name: "Clear Communication",
+    description: "Explain ideas clearly, adapt detail to the task, and organize answers so they are easy to use.",
   },
   {
-    name: "Git Workflow",
-    description: "Use disciplined Git workflows for branches, commits, and pull requests.",
+    name: "Planning & Problem Solving",
+    description: "Break complex requests into manageable steps, state assumptions, and suggest practical next actions.",
   },
 ];
 
@@ -91,9 +91,9 @@ export default function Home() {
   const [skills, setSkills] = useState(initialSkills);
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillDescription, setNewSkillDescription] = useState("");
-  const [promptName, setPromptName] = useState("review");
+  const [promptName, setPromptName] = useState("help");
   const [promptBody, setPromptBody] = useState(
-    "Review the current changes and report correctness, risks, and missing tests.",
+    "Help me with the task I describe. Ask clarifying questions when needed, explain ideas clearly, and provide a practical, well-organized answer.",
   );
   const [step, setStep] = useState(0);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -397,7 +397,7 @@ export default function Home() {
           )}
 
           <button className="advanced-settings-link" type="button" onClick={() => { setShowAdvanced(true); setStep(0); }}>
-            <Icon name="sliders-horizontal" size={15} /> I want to customize the setup <Icon name="arrow-right" size={14} />
+            <Icon name="sliders" size={15} /> I want to customize the setup <Icon name="arrow-right" size={14} />
           </button>
         </section>
       )}

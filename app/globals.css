@@ -3019,3 +3019,75 @@ button:disabled {
   .purpose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .purpose-card { min-height: 75px; }
 }
+
+
+/* Readability pass: prioritize comfortable reading over tiny editorial type */
+:root {
+  --font-sans: Inter, "Segoe UI", Arial, ui-sans-serif, system-ui, sans-serif;
+  --ink: #242720;
+  --muted: #5f645a;
+  --muted-2: #74796f;
+}
+body {
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  -webkit-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
+}
+button, input, select, textarea { letter-spacing: 0; }
+.page-heading h1 {
+  font-size: clamp(31px, 3.2vw, 40px);
+  line-height: 1.2;
+  letter-spacing: -.035em;
+  font-weight: 650;
+}
+.page-heading-copy > p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #5f645a;
+}
+.welcome-copy h2 {
+  font-size: clamp(27px, 3vw, 34px);
+  line-height: 1.25;
+  letter-spacing: -.03em;
+  font-weight: 650;
+}
+.welcome-copy p { font-size: 15px; line-height: 1.75; color: #5f645a; }
+.welcome-eyebrow { font-size: 11px; letter-spacing: .09em; color: #666c60; }
+.purpose-card-label { font-size: 13px; line-height: 1.5; font-weight: 600; color: #30352d; }
+.builder-mode-option strong { font-size: 14px; line-height: 1.45; font-weight: 620; }
+.builder-mode-option small { font-size: 12px; line-height: 1.5; color: #656b60; }
+.mode-number { font-size: 11px; }
+.platform-assurance strong { font-size: 13px; }
+.platform-assurance small { font-size: 12px; line-height: 1.55; color: #666c61; }
+.nav-link { font-size: 14px; line-height: 1.5; }
+.breadcrumbs { font-size: 12px; }
+.app-footer { font-size: 12px; line-height: 1.5; }
+.toolbar-title { font-size: 18px; line-height: 1.4; }
+.toolbar-kicker { font-size: 11px; }
+.step-label { font-size: 12px; line-height: 1.35; }
+.section-heading h2 { font-size: 21px; line-height: 1.35; letter-spacing: -.02em; }
+.section-heading p { font-size: 14px; line-height: 1.65; color: #5f645a; }
+.step-panel { font-size: 14px; line-height: 1.65; }
+.field-label, .input-label, label { line-height: 1.5; }
+input, select, textarea { font-size: 15px; line-height: 1.5; }
+button.btn, .btn { font-size: 14px; line-height: 1.4; }
+.support-note { font-size: 12px; line-height: 1.6; }
+.notice p { font-size: 14px; line-height: 1.6; }
+.resource-card, .library-section { font-size: 14px; line-height: 1.65; }
+.resource-card p, .catalog-note { font-size: 13px; line-height: 1.65; }
+.library-tab { font-size: 12px; }
+@media (max-width: 760px) {
+  body { font-size: 15px; }
+  .page-heading h1 { font-size: 31px; }
+  .page-heading-copy > p { font-size: 14px; }
+  .step-label { font-size: 11px; }
+  .section-heading h2 { font-size: 20px; }
+}
+@media (max-width: 480px) {
+  .page-heading h1 { font-size: 29px; }
+  .builder-mode-option strong { font-size: 13px; }
+  .builder-mode-option small { font-size: 11px; }
+  .purpose-card-label { font-size: 13px; }
+}

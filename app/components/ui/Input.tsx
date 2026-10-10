@@ -1,43 +1,55 @@
-import { ReactNode } from 'react';
+import { useId, type ChangeEvent, type HTMLInputTypeAttribute, type ReactNode } from "react";
 
-interface InputProps {
-  type?: string;
+type InputProps = {
+  type?: HTMLInputTypeAttribute;
   label: string;
   placeholder?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  inputClassName?: string;
   disabled?: boolean;
   required?: boolean;
   helperText?: ReactNode;
-}
+  autoComplete?: string;
+  maxLength?: number;
+};
 
 export default function Input({
-  type = 'text',
+  type = "text",
   label,
   placeholder,
   value,
   onChange,
-  className = '',
+  className = "",
+  inputClassName = "",
   disabled = false,
   required = false,
   helperText,
+  autoComplete,
+  maxLength,
 }: InputProps) {
+  const inputId = useId();
+
   return (
-    <div className={className}>
-      <label className="input-label">
-        {label}
-        {required && <span className="text-accent">*</span>}
+    <div className={("field " + className).trim()}>
+      <label className="field-label" htmlFor={inputId}>
+        <span>{label}</span>
+        {required && <span className="required-mark" aria-hidden="true">*</span>}
       </label>
       <input
+        id={inputId}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="input"
+        className={("text-input " + inputClassName).trim()}
         disabled={disabled}
+        required={required}
+        autoComplete={autoComplete}
+        maxLength={maxLength}
       />
-      {helperText && <p className="text-xs text-muted mt-1">{helperText}</p>}
+      {helperText && <p className="field-helper">{helperText}</p>}
     </div>
   );
 }

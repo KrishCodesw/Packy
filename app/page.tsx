@@ -1,55 +1,93 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import type { HarnessInput, TargetPlatform } from '../lib/harness';
-import Button from './components/ui/Button';
-import Input from './components/ui/Input';
-import Textarea from './components/ui/Textarea';
-import Select from './components/ui/Select';
-import Checkbox from './components/ui/Checkbox';
-import StepsIndicator from './components/ui/StepsIndicator';
-import Brand from './components/ui/Brand';
-import Preview from './components/ui/Preview';
-import Card from './components/ui/Card';
+import { useMemo, useState } from "react";
+import type { HarnessInput, TargetPlatform } from "../lib/harness";
+import AppShell from "./components/ui/AppShell";
+import Button from "./components/ui/Button";
+import Checkbox from "./components/ui/Checkbox";
+import Icon, { type IconName } from "./components/ui/Icon";
+import Input from "./components/ui/Input";
+import Preview from "./components/ui/Preview";
+import Select from "./components/ui/Select";
+import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
+import Textarea from "./components/ui/Textarea";
 
-const toolOptions = ['read', 'write', 'edit', 'bash', 'grep', 'find', 'ls'];
+const steps: StepItem[] = [
+  { label: "Identity", description: "Name & purpose" },
+  { label: "Runtime", description: "Model & platform" },
+  { label: "Tools", description: "Agent capabilities" },
+  { label: "Behavior", description: "Rules & skills" },
+  { label: "Review", description: "Build package" },
+];
 
-const mcpOptions = ['github', 'postgres', 'filesystem', 'browser'];
+const toolOptions: Array<{
+  value: string;
+  label: string;
+  description: string;
+  icon: IconName;
+}> = [
+  { value: "read", label: "Read files", description: "Inspect project files", icon: "file-text" },
+  { value: "write", label: "Write files", description: "Create new files", icon: "file-check" },
+  { value: "edit", label: "Edit files", description: "Apply focused changes", icon: "wrench" },
+  { value: "bash", label: "Terminal", description: "Run shell commands", icon: "terminal" },
+  { value: "grep", label: "Search content", description: "Find text across files", icon: "search" },
+  { value: "find", label: "Find paths", description: "Locate files and folders", icon: "folder" },
+  { value: "ls", label: "List files", description: "Inspect directory contents", icon: "layers" },
+];
 
-const defaultSkills = [ 
+const mcpOptions: Array<{
+  value: string;
+  label: string;
+  description: string;
+  icon: IconName;
+}> = [
+  { value: "github", label: "GitHub", description: "Repository and pull-request tools", icon: "git-branch" },
+  { value: "postgres", label: "PostgreSQL", description: "Database connectivity", icon: "command" },
+  { value: "filesystem", label: "Filesystem", description: "Local resource access", icon: "folder" },
+  { value: "browser", label: "Browser", description: "Web automation tools", icon: "globe" },
+];
+
+const initialSkills = [
   {
-    name: 'Code Review',
-    description:
-      'Review code for correctness, maintainability, and common security issues.',
+    name: "Code Review",
+    description: "Review code for correctness, maintainability, and common security issues.",
   },
   {
-    name: 'Git Workflow',
-    description:
-      'Use disciplined Git workflows for branches, commits, and pull requests.',
+    name: "Git Workflow",
+    description: "Use disciplined Git workflows for branches, commits, and pull requests.",
   },
 ];
 
+type Notice = {
+  kind: "success" | "error" | "info";
+  message: string;
+};
+
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "my-agent";
+}
+
 export default function Home() {
-  const [name, setName] = useState('My Engineering Agent');
-  const [description, setDescription] = useState(
-    'A focused coding agent configured for my workflow.',
-  );
-  const [model, setModel] = useState('anthropic/claude-sonnet-4');
-  const [thinking, setThinking] = useState('medium');
-  const [tools, setTools] = useState(['read', 'grep', 'find', 'ls']);
-  const [mcps, setMcps] = useState(['github']);
-  const [targetPlatform, setTargetPlatform] =
-    useState<TargetPlatform>('windows-x64');
+  const [name, setName] = useState("My Engineering Agent");
+  const [description, setDescription] = useState("A focused coding agent configured for my workflow.");
+  const [model, setModel] = useState("anthropic/claude-sonnet-4");
+  const [thinking, setThinking] = useState("medium");
+  const [tools, setTools] = useState(["read", "grep", "find", "ls"]);
+  const [mcps, setMcps] = useState(["github"]);
+  const [targetPlatform] = useState<TargetPlatform>("windows-x64");
   const [rules, setRules] = useState(
-    'Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes.',
+    "Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes.",
   );
-  const [skills, setSkills] = useState(defaultSkills);
-  const [promptName, setPromptName] = useState('review');
+  const [skills, setSkills] = useState(initialSkills);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillDescription, setNewSkillDescription] = useState("");
+  const [promptName, setPromptName] = useState("review");
   const [promptBody, setPromptBody] = useState(
-    'Review the current changes and report correctness, risks, and missing tests.',
+    "Review the current changes and report correctness, risks, and missing tests.",
   );
   const [step, setStep] = useState(0);
-  const [status, setStatus] = useState('');
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const input: HarnessInput = useMemo(
     () => ({
@@ -65,425 +103,645 @@ export default function Home() {
       prompts: [
         {
           name: promptName,
-          description: 'Review the current changes',
+          description: "Review the current changes",
           body: promptBody,
         },
       ],
-    }), 
-    [name, description, model, thinking, tools, mcps, targetPlatform, skills, rules, promptName, promptBody]
+    }),
+    [name, description, model, thinking, tools, mcps, targetPlatform, skills, rules, promptName, promptBody],
   );
 
-  const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
-    set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+  const toggle = (items: string[], value: string, setItems: (next: string[]) => void) => {
+    setItems(items.includes(value) ? items.filter((item) => item !== value) : [...items, value]);
+  };
+
+  function goToStep(nextStep: number) {
+    setNotice(null);
+    setStep(Math.max(0, Math.min(steps.length - 1, nextStep)));
+  }
+
+  function continueStep() {
+    if (step === 0 && !name.trim()) {
+      setNotice({ kind: "error", message: "Give this agent a name before continuing." });
+      return;
+    }
+    if (step === 1 && !model.trim()) {
+      setNotice({ kind: "error", message: "Enter the model identifier Packy should configure." });
+      return;
+    }
+    if (step === 3 && (!promptName.trim() || !promptBody.trim())) {
+      setNotice({ kind: "error", message: "Add a prompt command name and its instructions." });
+      return;
+    }
+    setNotice(null);
+    goToStep(step + 1);
+  }
+
+  function addSkill() {
+    const skillName = newSkillName.trim();
+    const skillDescription = newSkillDescription.trim();
+
+    if (!skillName || !skillDescription) {
+      setNotice({ kind: "error", message: "Add both a skill name and a short description." });
+      return;
+    }
+    if (skills.some((skill) => skill.name.toLowerCase() === skillName.toLowerCase())) {
+      setNotice({ kind: "error", message: "A skill with that name already exists." });
+      return;
+    }
+
+    setSkills((current) => [...current, { name: skillName, description: skillDescription }]);
+    setNewSkillName("");
+    setNewSkillDescription("");
+    setNotice({ kind: "success", message: "Skill added to this package configuration." });
+  }
+
+  function updateSkill(index: number, field: "name" | "description", value: string) {
+    setSkills((current) =>
+      current.map((skill, currentIndex) =>
+        currentIndex === index ? { ...skill, [field]: value } : skill,
+      ),
+    );
+  }
+
+  function removeSkill(index: number) {
+    setSkills((current) => current.filter((_, currentIndex) => currentIndex !== index));
+    setNotice({ kind: "info", message: "Skill removed from this package configuration." });
+  }
 
   async function generate() {
-    try {
-      setStatus('Generating...');
+    if (!name.trim() || !model.trim() || !promptName.trim() || !promptBody.trim()) {
+      setNotice({ kind: "error", message: "Complete the agent name, model, and prompt before building." });
+      return;
+    }
 
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
+    setIsGenerating(true);
+    setNotice({ kind: "info", message: "Building your Windows x64 package…" });
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error || 'Generation failed');
+        const payload = await response.json().catch(() => null);
+        const message =
+          payload && typeof payload.error === "string"
+            ? payload.error
+            : "The package could not be generated. Please try again.";
+        throw new Error(message);
       }
 
       const blob = await response.blob();
-
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'harness.zip';
-
-      const match = contentDisposition?.match(/filename="([^"]+)"/);
-      if (match?.[1]) {
-        filename = match[1];
+      if (blob.size === 0) {
+        throw new Error("The generation endpoint returned an empty package.");
       }
 
-      const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const disposition = response.headers.get("Content-Disposition");
+      const match = disposition?.match(/filename="([^"]+)"/);
+      const filename = match?.[1] || slugify(name) + ".zip";
+      const objectUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
 
-      anchor.href = url;
+      anchor.href = objectUrl;
       anchor.download = filename;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
+      window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1500);
 
-      window.URL.revokeObjectURL(url);
-
-      setStatus(
-        'Harness generated. Run install.cmd on Windows or install.sh on macOS.',
-      );
+      setNotice({
+        kind: "success",
+        message: "Package downloaded. Extract the ZIP and run install.cmd on Windows.",
+      });
     } catch (error) {
-      console.error('Generation failed:', error);
-      setStatus(error instanceof Error ? error.message : 'Generation failed');
+      setNotice({
+        kind: "error",
+        message: error instanceof Error ? error.message : "Package generation failed.",
+      });
+    } finally {
+      setIsGenerating(false);
     }
   }
 
+  const packageSlug = slugify(name);
+  const platformName = "Windows x64";
+  const activeToolCount = tools.length;
+  const activeMcpCount = mcps.length;
+
   return (
-    <div className="shell">
-      <aside className="side">
-        <div className="brand">Packy</div>
-
-        <div className="muted" style={{ fontSize: 12, lineHeight: 1.5 }}>
-          Compose a purpose-built Pi harness before installation.
+    <AppShell activeSection="builder" sectionLabel="Build agent">
+      <div className="page-heading">
+        <div className="page-heading-copy">
+          <div className="eyebrow"><span className="eyebrow-marker" /> AGENT PACKAGING</div>
+          <h1>Build an agent environment.</h1>
+          <p>Compose the model, capabilities, and instructions. Packy wraps them with the Pi runtime into an installable package.</p>
         </div>
-
-        <div className="steps">
-          {['Identity', 'Runtime', 'Capabilities', 'Behavior', 'Review'].map(
-            (x, i) => (
-              <div
-                key={x}
-                className={`step ${i === step ? 'active' : ''} ${
-                  i < step ? 'done' : ''
-                }`}
-              >
-                {String(i + 1).padStart(2, '0')} &nbsp; {x}
-              </div>
-            ),
-          )}
+        <div className="page-heading-meta">
+          <span className="status-label"><span className="status-dot" /> BUILDER READY</span>
+          <span className="meta-divider" />
+          <span className="meta-version">Pi v1.0.4</span>
         </div>
+      </div>
 
-        <div style={{ marginTop: 'auto' }} className="muted">
-          <span className="pill">Pi runtime · immutable</span>
-        </div>
-      </aside>
-
-      <main className="main">
-        <div className="top">
-          <div>
-            <div className="eyebrow">Harness / New</div>
-
-            <h1 className="title">Build your agent.</h1>
-
-            <p className="desc">
-              Define the parts Pi should load. Packy turns the
-              specification into a portable Pi configuration and resource
-              package.
-            </p>
+      <div className="builder-layout">
+        <section className="builder-column" aria-label="Agent configuration">
+          <div className="builder-toolbar">
+            <div>
+              <span className="toolbar-kicker">NEW PACKAGE</span>
+              <span className="toolbar-title">Configuration</span>
+            </div>
+            <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 05</span>
           </div>
 
-          <span className="pill">MVP</span>
-        </div>
+          <StepsIndicator steps={steps} currentStep={step} onChange={goToStep} />
 
-        {step === 0 && (
-          <section className="grid">
-            <div className="card">
-              <h2>Agent identity</h2>
+          <div className="step-panel" key={step}>
+            {step === 0 && (
+              <>
+                <div className="section-heading">
+                  <span className="section-index">01</span>
+                  <div>
+                    <h2>Give it an identity</h2>
+                    <p>A useful name and a clear purpose make packages easier to share.</p>
+                  </div>
+                </div>
 
-              <div className="field">
-                <label className="label">NAME</label>
+                <div className="form-stack">
+                  <Input
+                    label="Agent name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="e.g. Security Reviewer"
+                    helperText="This becomes the name shown in your package metadata."
+                    required
+                    maxLength={80}
+                  />
+                  <Textarea
+                    label="What should this agent do?"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder="Describe the agent's purpose, the work it handles, and where it should focus."
+                    rows={4}
+                    required
+                    maxLength={500}
+                    helperText="Keep it specific. This description is included in the generated system instructions."
+                  />
+                  <div className="slug-preview">
+                    <span className="slug-preview-icon"><Icon name="package" size={16} /></span>
+                    <span className="slug-preview-label">PACKAGE FILENAME</span>
+                    <code>{packageSlug}.zip</code>
+                  </div>
+                </div>
+              </>
+            )}
 
-                <Input
-                  value={name}
-                  onChange={setName}
-                  placeholder="My Engineering Agent"
-                />
-              </div>
+            {step === 1 && (
+              <>
+                <div className="section-heading">
+                  <span className="section-index">02</span>
+                  <div>
+                    <h2>Choose the runtime setup</h2>
+                    <p>Set the model defaults and select a platform that Packy can currently build.</p>
+                  </div>
+                </div>
 
-              <div className="field">
-                <label className="label">DESCRIPTION</label>
+                <div className="form-stack">
+                  <Input
+                    label="Model identifier"
+                    value={model}
+                    onChange={(event) => setModel(event.target.value)}
+                    placeholder="provider/model-name"
+                    required
+                    helperText="Use the model identifier format supported by Pi, for example anthropic/claude-sonnet-4."
+                  />
 
-                <Textarea
-                  value={description}
-                  onChange={setDescription}
-                  placeholder="A focused coding agent configured for my workflow."
-                  rows={3}
-                />
-              </div>
-            </div>
+                  <div className="two-column-fields">
+                    <Select
+                      label="Thinking level"
+                      value={thinking}
+                      onChange={(event) => setThinking(event.target.value)}
+                      options={[
+                        { value: "minimal", label: "Minimal" },
+                        { value: "low", label: "Low" },
+                        { value: "medium", label: "Medium" },
+                        { value: "high", label: "High" },
+                      ]}
+                      helperText="Default reasoning effort."
+                    />
+                    <div className="field">
+                      <label className="field-label">Pi runtime</label>
+                      <div className="read-only-field">
+                        <span className="read-only-icon"><Icon name="cpu" size={16} /></span>
+                        <span>Pi v1.0.4</span>
+                        <span className="read-only-lock"><Icon name="lock" size={13} /></span>
+                      </div>
+                      <p className="field-helper">Bundled unchanged.</p>
+                    </div>
+                  </div>
 
-            <div className="card">
-              <h2>Output</h2>
+                  <div className="field">
+                    <label className="field-label">Target platform <span className="required-mark">*</span></label>
+                    <div className="platform-card selected">
+                      <span className="platform-glyph"><Icon name="monitor" size={20} /></span>
+                      <span className="platform-copy">
+                        <strong>Windows x64</strong>
+                        <span>Installer included · Ready to build</span>
+                      </span>
+                      <span className="platform-selected"><Icon name="check" size={13} /> Available</span>
+                    </div>
+                    <div className="platform-unavailable">
+                      <Icon name="clock" size={15} />
+                      <span>macOS and Linux builds will appear here when their packaging pipelines are implemented.</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
-              <div className="preview">
-                {name || 'Unnamed harness'}
-                {'\n\n'}
-                Pi runtime: immutable
-                {'\n'}
-                Config: generated
-                {'\n'}
-                Skills: generated
-                {'\n'}
-                Prompts: generated
-                {'\n'}
-                MCP: generated
-              </div>
-            </div>
-          </section>
-        )}
+            {step === 2 && (
+              <>
+                <div className="section-heading">
+                  <span className="section-index">03</span>
+                  <div>
+                    <h2>Choose its capabilities</h2>
+                    <p>Start with the built-in tools this agent should have available.</p>
+                  </div>
+                </div>
 
-        {step === 1 && (
-          <section className="grid">
-            <div className="card">
-              <h2>Runtime</h2>
+                <div className="field">
+                  <div className="field-header">
+                    <label className="field-label">BUILT-IN TOOLS</label>
+                    <span className="selection-count">{activeToolCount} selected</span>
+                  </div>
+                  <div className="option-grid">
+                    {toolOptions.map((tool) => (
+                      <Checkbox
+                        key={tool.value}
+                        label={tool.label}
+                        description={tool.description}
+                        checked={tools.includes(tool.value)}
+                        onChange={() => toggle(tools, tool.value, setTools)}
+                        icon={<Icon name={tool.icon} size={17} />}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-              <div className="field">
-                <label className="label">MODEL</label>
+                <div className="form-divider" />
 
-                <Input
-                  value={model}
-                  onChange={setModel}
-                  placeholder="anthropic/claude-sonnet-4"
-                />
-              </div>
+                <div className="field">
+                  <div className="field-header">
+                    <label className="field-label">MCP SERVER SELECTION</label>
+                    <span className="preview-badge">PREVIEW ONLY</span>
+                  </div>
+                  <div className="option-grid option-grid-two">
+                    {mcpOptions.map((mcp) => (
+                      <Checkbox
+                        key={mcp.value}
+                        label={mcp.label}
+                        description={mcp.description}
+                        checked={mcps.includes(mcp.value)}
+                        onChange={() => toggle(mcps, mcp.value, setMcps)}
+                        icon={<Icon name={mcp.icon} size={17} />}
+                      />
+                    ))}
+                  </div>
+                  <div className="notice notice-warning">
+                    <Icon name="info" size={16} />
+                    <p>MCP choices currently generate placeholder entries, not live connections. Real endpoints and authentication are not implemented yet.</p>
+                  </div>
+                </div>
+              </>
+            )}
 
-              <div className="field">
-                <label className="label">TARGET PLATFORM</label>
+            {step === 3 && (
+              <>
+                <div className="section-heading">
+                  <span className="section-index">04</span>
+                  <div>
+                    <h2>Set its behavior</h2>
+                    <p>Write operating rules, reusable skills, and a prompt command for the agent.</p>
+                  </div>
+                </div>
 
-                <Select
-                  value={targetPlatform}
-                  onChange={setTargetPlatform}
-                  options={[
-                    { value: 'windows-x64', label: 'Windows x64' },
-                    { value: 'macos-arm64', label: 'macOS Apple Silicon' },
-                    { value: 'macos-x64', label: 'macOS Intel' },
-                  ]}
-                />
-              </div>
+                <div className="form-stack">
+                  <Textarea
+                    label="Operating rules"
+                    value={rules}
+                    onChange={(event) => setRules(event.target.value)}
+                    placeholder={"Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."}
+                    rows={4}
+                    helperText="One rule per line. These are written into SYSTEM.md."
+                  />
 
-              <div className="field">
-                <label className="label">THINKING LEVEL</label>
+                  <div className="form-divider" />
 
-                <Select
-                  value={thinking}
-                  onChange={setThinking}
-                  options={[
-                    { value: 'minimal', label: 'Minimal' },
-                    { value: 'low', label: 'Low' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'high', label: 'High' },
-                  ]}
-                />
-              </div>
-            </div>
+                  <div className="section-subheading">
+                    <div>
+                      <h3>Skills</h3>
+                      <p>Give the agent reusable instructions for specific tasks.</p>
+                    </div>
+                    <span className="selection-count">{skills.length} {skills.length === 1 ? "skill" : "skills"}</span>
+                  </div>
 
-            <div className="card">
-              <h2>Generated</h2>
+                  {skills.length > 0 ? (
+                    <div className="skill-list">
+                      {skills.map((skill, index) => (
+                        <div className="skill-editor" key={index}>
+                          <div className="skill-editor-top">
+                            <span className="skill-file-icon"><Icon name="file-text" size={16} /></span>
+                            <span className="skill-file-label">SKILL.md</span>
+                            <button
+                              type="button"
+                              className="icon-button subtle-danger"
+                              onClick={() => removeSkill(index)}
+                              aria-label={"Remove " + skill.name}
+                              title="Remove skill"
+                            >
+                              <Icon name="trash" size={15} />
+                            </button>
+                          </div>
+                          <div className="skill-editor-fields">
+                            <Input
+                              label="Skill name"
+                              value={skill.name}
+                              onChange={(event) => updateSkill(index, "name", event.target.value)}
+                              required
+                            />
+                            <Input
+                              label="Description"
+                              value={skill.description}
+                              onChange={(event) => updateSkill(index, "description", event.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-skills">
+                      <Icon name="layers" size={20} />
+                      <span>No skills added. You can still build a package without custom skills.</span>
+                    </div>
+                  )}
 
-              <div className="preview">
-                settings.json
-                {'\n\n'}
-                {JSON.stringify(
-                  {
-                    defaultModel: model,
-                    defaultThinkingLevel: thinking,
-                    defaultTools: tools,
-                  },
-                  null,
-                  2,
+                  <div className="add-skill-card">
+                    <div className="add-skill-title"><Icon name="plus" size={16} /> Add a skill</div>
+                    <div className="skill-editor-fields">
+                      <Input
+                        label="Skill name"
+                        value={newSkillName}
+                        onChange={(event) => setNewSkillName(event.target.value)}
+                        placeholder="e.g. Security Review"
+                      />
+                      <Input
+                        label="Short description"
+                        value={newSkillDescription}
+                        onChange={(event) => setNewSkillDescription(event.target.value)}
+                        placeholder="What should the skill guide?"
+                      />
+                    </div>
+                    <div className="add-skill-action">
+                      <Button variant="secondary" size="sm" onClick={addSkill}>
+                        <Icon name="plus" size={14} /> Add skill
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="form-divider" />
+
+                  <div className="section-subheading">
+                    <div>
+                      <h3>Prompt command</h3>
+                      <p>A named instruction the user can invoke in Pi.</p>
+                    </div>
+                  </div>
+                  <Input
+                    label="Command name"
+                    value={promptName}
+                    onChange={(event) => setPromptName(event.target.value)}
+                    placeholder="review"
+                    required
+                  />
+                  <Textarea
+                    label="Prompt instructions"
+                    value={promptBody}
+                    onChange={(event) => setPromptBody(event.target.value)}
+                    placeholder="Describe the steps and output expected from this command."
+                    rows={4}
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <div className="section-heading">
+                  <span className="section-index">05</span>
+                  <div>
+                    <h2>Review your package</h2>
+                    <p>Check the generated configuration before creating the downloadable ZIP.</p>
+                  </div>
+                </div>
+
+                <div className="review-summary-banner">
+                  <span className="review-check"><Icon name="check" size={18} /></span>
+                  <div>
+                    <strong>Configuration ready for build</strong>
+                    <p>Packy will assemble the runtime and selected resources into one package.</p>
+                  </div>
+                  <span className="platform-tag"><Icon name="monitor" size={13} /> {platformName}</span>
+                </div>
+
+                <div className="review-table">
+                  <div className="review-row">
+                    <span>Package name</span>
+                    <strong>{name || "Untitled agent"}</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>Model</span>
+                    <strong>{model || "Not configured"}</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>Thinking level</span>
+                    <strong className="value-capitalize">{thinking}</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>Built-in tools</span>
+                    <strong>{tools.length} selected</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>Skills</span>
+                    <strong>{skills.length} included</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>MCP entries</span>
+                    <strong>{mcps.length} placeholder {mcps.length === 1 ? "entry" : "entries"}</strong>
+                  </div>
+                  <div className="review-row">
+                    <span>Prompt commands</span>
+                    <strong>{promptName.trim() ? "1 configured" : "None"}</strong>
+                  </div>
+                </div>
+
+                <Preview label="PACKAGE CONTENTS">
+                  {packageSlug + ".zip"}{"\n"}
+                  {"├── install.cmd\n"}
+                  {"├── README.md\n"}
+                  {"├── harness.json\n"}
+                  {"├── runtimes/windows-x64/\n"}
+                  {"└── agent/\n"}
+                  {"    ├── settings.json\n"}
+                  {"    ├── mcp.json\n"}
+                  {"    ├── SYSTEM.md\n"}
+                  {"    ├── skills/\n"}
+                  {"    └── prompts/"}
+                </Preview>
+
+                {mcps.length > 0 && (
+                  <div className="notice notice-warning review-warning">
+                    <Icon name="info" size={16} />
+                    <p>MCP entries use placeholder URLs in this version. Unselect them if you do not want placeholder definitions in the package.</p>
+                  </div>
                 )}
-              </div>
-            </div>
-          </section>
-        )}
+              </>
+            )}
+          </div>
 
-        {step === 2 && (
-          <section className="grid">
-            <div className="card">
-              <h2>Built-in tools</h2>
-
-              <div className="checks">
-                {toolOptions.map((x) => (
-                  <label className="check" key={x}>
-                    <Checkbox
-                      checked={tools.includes(x)}
-                      onChange={(checked) => toggle(tools, x, setTools)}
-                    />
-                    {x}
-                  </label>
-                ))}
-              </div>
-
-              <h2 style={{ marginTop: 28 }}>MCP servers</h2>
-
-              <div className="checks">
-                {mcpOptions.map((x) => (
-                  <label className="check" key={x}>
-                    <Checkbox
-                      checked={mcps.includes(x)}
-                      onChange={(checked) => toggle(mcps, x, setMcps)}
-                    />
-                    {x}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="card">
-              <h2>Capability summary</h2>
-
-              <div className="reviewRow">
-                <span>Tools</span>
-                <b>{tools.length}</b>
-              </div>
-
-              <div className="reviewRow">
-                <span>MCPs</span>
-                <b>{mcps.length}</b>
-              </div>
-
-              <div className="reviewRow">
-                <span>Custom extensions</span>
-                <b>0</b>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {step === 3 && (
-          <section className="grid">
-            <div className="card">
-              <h2>Behavior</h2>
-
-              <div className="field">
-                <label className="label">SYSTEM RULES · ONE PER LINE</label>
-
-                <Textarea
-                  value={rules}
-                  onChange={setRules}
-                  placeholder="Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."
-                  rows={4}
-                />
-              </div>
-
-              <div className="field">
-                <label className="label">PROMPT COMMAND</label>
-
-                <Input
-                  value={promptName}
-                  onChange={setPromptName}
-                  placeholder="review"
-                />
-              </div>
-
-              <div className="field">
-                <label className="label">PROMPT BODY</label>
-
-                <Textarea
-                  value={promptBody}
-                  onChange={setPromptBody}
-                  placeholder="Review the current changes and report correctness, risks, and missing tests."
-                  rows={4}
-                />
-              </div>
-            </div>
-
-            <div className="card">
-              <h2>Skills</h2>
-
-              {skills.map((s) => (
-                <div key={s.name} className="reviewRow">
-                  <span>{s.name}</span>
-                  <span className="muted">SKILL.md</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {step === 4 && (
-          <section className="grid">
-            <div className="card">
-              <h2>Ready to build</h2>
-
-              <div className="review">
-                <div className="reviewRow">
-                  <span>Platform</span>
-
-                  <b>
-                    {targetPlatform === 'windows-x64'
-                      ? 'Windows x64'
-                      : targetPlatform === 'macos-arm64'
-                        ? 'macOS Apple Silicon'
-                        : 'macOS Intel'}
-                  </b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>Name</span>
-                  <b>{name}</b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>Model</span>
-                  <b>{model}</b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>Tools</span>
-                  <b>{tools.join(', ') || 'None'}</b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>MCP</span>
-                  <b>{mcps.join(', ') || 'None'}</b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>Skills</span>
-                  <b>{skills.length}</b>
-                </div>
-
-                <div className="reviewRow">
-                  <span>Prompt commands</span>
-                  <b>1</b>
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <h2>Package</h2>
-
-              <div className="preview">
-                settings.json
-                {'\n'}
-                mcp.json
-                {'\n'}
-                SYSTEM.md
-                {'\n'}
-                harness.json
-                {'\n'}
-                README.md
-                {'\n'}
-                skills/*/SKILL.md
-                {'\n'}
-                prompts/*.md
-              </div>
-            </div>
-          </section>
-        )}
-
-        <div className="actions">
-          <button
-            className="btn"
-            disabled={step === 0}
-            onClick={() => setStep(step - 1)}
-          >
-            Back
-          </button>
-
-          {step < 4 ? (
-            <Button variant="primary" onClick={() => setStep(step + 1)}>
-              Continue
+          <div className="builder-actions">
+            <Button
+              variant="secondary"
+              onClick={() => goToStep(step - 1)}
+              disabled={step === 0 || isGenerating}
+            >
+              <Icon name="arrow-left" size={15} /> Back
             </Button>
-          ) : (
-            <Button variant="primary" onClick={generate}>
-              Build & Download
-            </Button>
+            <div className="action-middle">
+              <span className="action-step">{String(step + 1).padStart(2, "0")} / 05</span>
+              <span className="action-step-track"><span style={{ width: ((step + 1) / steps.length * 100) + "%" }} /></span>
+            </div>
+            {step < steps.length - 1 ? (
+              <Button onClick={continueStep} disabled={isGenerating}>
+                Continue <Icon name="arrow-right" size={15} />
+              </Button>
+            ) : (
+              <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
+                <Icon name="download" size={15} /> Build & download
+              </Button>
+            )}
+          </div>
+
+          {notice && (
+            <div className={"notice notice-" + notice.kind} role={notice.kind === "error" ? "alert" : "status"} aria-live="polite">
+              <Icon
+                name={notice.kind === "success" ? "circle-check" : notice.kind === "error" ? "alert-circle" : "info"}
+                size={17}
+              />
+              <p>{notice.message}</p>
+              {notice.kind === "error" && (
+                <button type="button" className="notice-dismiss" onClick={() => setNotice(null)} aria-label="Dismiss message">
+                  <Icon name="x" size={14} />
+                </button>
+              )}
+            </div>
           )}
-        </div>
+        </section>
 
-        {status && <div className="footerNote">{status}</div>}
+        <aside className="inspector-column" aria-label="Live package preview">
+          <div className="inspector-card">
+            <div className="inspector-header">
+              <div>
+                <span className="toolbar-kicker">LIVE INSPECTOR</span>
+                <h2>Package preview</h2>
+              </div>
+              <span className="inspector-live"><span /> LIVE</span>
+            </div>
 
-        <div className="footerNote">
-          The generated package uses Pi&apos;s existing resource mechanisms.
-          Packy does not modify Pi core.
-        </div>
-      </main>
-    </div>
+            <div className="package-identity">
+              <div className="package-avatar"><Icon name="package" size={22} /></div>
+              <div className="package-identity-copy">
+                <strong>{name.trim() || "Untitled agent"}</strong>
+                <span>{packageSlug}.zip</span>
+              </div>
+            </div>
+
+            <div className="inspector-details">
+              <div className="inspector-detail-row">
+                <span>Runtime</span>
+                <strong>Pi <span className="inline-muted">1.0.4</span></strong>
+              </div>
+              <div className="inspector-detail-row">
+                <span>Target</span>
+                <strong><Icon name="monitor" size={14} /> Windows x64</strong>
+              </div>
+              <div className="inspector-detail-row">
+                <span>Model</span>
+                <strong className="inspector-model">{model || "Not set"}</strong>
+              </div>
+              <div className="inspector-detail-row">
+                <span>Thinking</span>
+                <strong className="value-capitalize">{thinking}</strong>
+              </div>
+            </div>
+
+            <div className="inspector-divider" />
+
+            <div className="inspector-section-title">
+              <span>CONTENTS</span>
+              <span className="contents-count">6 + resources</span>
+            </div>
+            <div className="package-tree">
+              <div className="tree-line">
+                <Icon name="folder" size={16} />
+                <span>agent/</span>
+                <span className="tree-meta">{activeToolCount} tools</span>
+              </div>
+              <div className="tree-child">
+                <div><Icon name="file-text" size={14} /><span>settings.json</span></div>
+                <div><Icon name="file-text" size={14} /><span>SYSTEM.md</span></div>
+                <div><Icon name="file-text" size={14} /><span>mcp.json</span>{mcps.length > 0 && <span className="tree-warning">stub</span>}</div>
+                <div><Icon name="folder" size={14} /><span>skills/</span><span className="tree-meta">{skills.length}</span></div>
+                <div><Icon name="folder" size={14} /><span>prompts/</span><span className="tree-meta">1</span></div>
+              </div>
+              <div className="tree-line">
+                <Icon name="folder" size={16} />
+                <span>runtimes/windows-x64/</span>
+                <span className="tree-meta">Pi</span>
+              </div>
+              <div className="tree-line">
+                <Icon name="file-text" size={16} />
+                <span>harness.json</span>
+              </div>
+              <div className="tree-line">
+                <Icon name="terminal" size={16} />
+                <span>install.cmd</span>
+              </div>
+            </div>
+
+            <div className="inspector-divider" />
+
+            <div className="inspector-section-title"><span>CAPABILITIES</span></div>
+            <div className="capability-pills">
+              <span><Icon name="wrench" size={13} /> {activeToolCount} tools</span>
+              <span><Icon name="layers" size={13} /> {skills.length} skills</span>
+              <span><Icon name="plug" size={13} /> {activeMcpCount} MCP</span>
+            </div>
+            <div className="inspector-note">
+              <Icon name="shield-check" size={16} />
+              <p>Pi core stays unchanged. Packy keeps configuration and resources alongside the bundled runtime.</p>
+            </div>
+          </div>
+
+          <div className="support-note">
+            <span className="support-note-icon"><Icon name="info" size={15} /></span>
+            <p><strong>Still in preview</strong> — provider credentials are configured separately, and MCP connections are not wired up yet.</p>
+          </div>
+        </aside>
+      </div>
+    </AppShell>
   );
 }

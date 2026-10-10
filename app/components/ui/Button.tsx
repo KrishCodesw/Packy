@@ -1,34 +1,46 @@
-import { ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface ButtonProps {
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type ButtonSize = "sm" | "md" | "lg";
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'accent' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   block?: boolean;
-  className?: string;
-  onClick?: () => void;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-}
+  loading?: boolean;
+};
 
 export default function Button({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   block = false,
-  className = '',
-  onClick,
+  loading = false,
   disabled = false,
-  type = 'button',
+  className = "",
+  type = "button",
+  ...props
 }: ButtonProps) {
+  const classes = [
+    "btn",
+    "btn-" + variant,
+    "btn-" + size,
+    block ? "btn-block" : "",
+    loading ? "is-loading" : "",
+    className,
+  ].filter(Boolean).join(" ");
+
   return (
     <button
       type={type}
-      className={`btn btn-${variant} btn-${size} ${block ? 'btn-block' : ''} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
+      className={classes}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
     >
-      {children}
+      {loading && <span className="button-spinner" aria-hidden="true" />}
+      <span>{children}</span>
     </button>
   );
 }

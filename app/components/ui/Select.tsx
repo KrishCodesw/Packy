@@ -1,46 +1,55 @@
-import { ReactNode } from 'react';
+import { useId, type ChangeEvent, type ReactNode } from "react";
+import Icon from "./Icon";
 
-interface SelectProps {
+type SelectOption = { value: string; label: string; disabled?: boolean };
+
+type SelectProps = {
   label: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: { value: string; label: string }[];
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  options: SelectOption[];
   className?: string;
   disabled?: boolean;
   required?: boolean;
   helperText?: ReactNode;
-}
+};
 
 export default function Select({
   label,
   value,
   onChange,
   options,
-  className = '',
+  className = "",
   disabled = false,
   required = false,
   helperText,
 }: SelectProps) {
+  const selectId = useId();
+
   return (
-    <div className={className}>
-      <label className="input-label">
-        {label}
-        {required && <span className="text-accent">*</span>}
+    <div className={("field " + className).trim()}>
+      <label className="field-label" htmlFor={selectId}>
+        <span>{label}</span>
+        {required && <span className="required-mark" aria-hidden="true">*</span>}
       </label>
-      <select
-        value={value}
-        onChange={onChange}
-        className="select"
-        disabled={disabled}
-      >
-        <option value="">Select an option</option>
-        {options.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {helperText && <p className="text-xs text-muted mt-1">{helperText}</p>}
+      <span className="select-wrap">
+        <select
+          id={selectId}
+          value={value}
+          onChange={onChange}
+          className="text-select"
+          disabled={disabled}
+          required={required}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} disabled={option.disabled}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <Icon name="chevron-down" size={15} />
+      </span>
+      {helperText && <p className="field-helper">{helperText}</p>}
     </div>
   );
 }

@@ -12,6 +12,14 @@ import Select from "./components/ui/Select";
 import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
 import Textarea from "./components/ui/Textarea";
 
+const purposeOptions = [
+  { label: "Everyday assistant", name: "My personal assistant", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sun" as IconName },
+  { label: "Writing & ideas", name: "Writing companion", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "pen-line" as IconName },
+  { label: "Research & learning", name: "Research companion", description: "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.", icon: "book-open" as IconName },
+  { label: "Work & planning", name: "Work organizer", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "calendar-check" as IconName },
+  { label: "Coding & technical work", name: "Coding assistant", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "code" as IconName },
+];
+
 const steps: StepItem[] = [
   { label: "Identity", description: "Name & purpose" },
   { label: "Runtime", description: "Model & platform" },
@@ -68,8 +76,10 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  const [name, setName] = useState("My Engineering Agent");
-  const [description, setDescription] = useState("A focused coding agent configured for my workflow.");
+  const [name, setName] = useState("My personal assistant");
+  const [description, setDescription] = useState("Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.");
+  const [selectedPurpose, setSelectedPurpose] = useState("Everyday assistant");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [model, setModel] = useState("anthropic/claude-sonnet-4");
   const [thinking, setThinking] = useState("medium");
   const [tools, setTools] = useState(["read", "grep", "find", "ls"]);
@@ -307,9 +317,9 @@ export default function Home() {
     <AppShell activeSection="builder" sectionLabel="Build agent">
       <div className="page-heading">
         <div className="page-heading-copy">
-          <div className="eyebrow"><span className="eyebrow-marker" /> AGENT PACKAGING</div>
-          <h1>Build an agent environment.</h1>
-          <p>Compose the model, capabilities, and instructions. Packy wraps them with the Pi runtime into an installable package.</p>
+          <div className="eyebrow"><span className="eyebrow-marker" /> YOUR PERSONAL HELPER</div>
+          <h1>Make a helper that feels like yours.</h1>
+          <p>Tell Packy what you need. It takes care of preparing the setup, so you can focus on what you want help with.</p>
         </div>
         <div className="page-heading-meta">
           <span className="status-label"><span className="status-dot" /> BUILDER READY</span>
@@ -318,12 +328,86 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="builder-layout">
+      {!showAdvanced && (
+        <section className="welcome-builder" aria-labelledby="welcome-title">
+          <div className="welcome-copy">
+            <span className="welcome-eyebrow">A GOOD PLACE TO START</span>
+            <h2 id="welcome-title">What would you like a helper to do for you?</h2>
+            <p>Choose a starting point, give your helper a name, and Packy will prepare a ready-to-install package. You can fine-tune the details later.</p>
+          </div>
+
+          <div className="purpose-grid" role="group" aria-label="Choose what your helper will do">
+            {purposeOptions.map((purpose) => (
+              <button
+                className={"purpose-card " + (selectedPurpose === purpose.label ? "selected" : "")}
+                type="button"
+                key={purpose.label}
+                onClick={() => {
+                  setSelectedPurpose(purpose.label);
+                  setName(purpose.name);
+                  setDescription(purpose.description);
+                  setNotice(null);
+                }}
+                aria-pressed={selectedPurpose === purpose.label}
+              >
+                <span className="purpose-card-icon"><Icon name={purpose.icon} size={19} /></span>
+                <span className="purpose-card-label">{purpose.label}</span>
+                <span className="purpose-card-check"><Icon name="check" size={14} /></span>
+              </button>
+            ))}
+          </div>
+
+          <div className="welcome-form">
+            <Input
+              label="Give your helper a name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="e.g. My study companion"
+              required
+              maxLength={80}
+            />
+            <Textarea
+              label="What should it help you with? Use your own words."
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Tell Packy what you want your helper to do."
+              rows={3}
+              required
+              maxLength={500}
+              helperText="You do not need to know anything about models, tools, or configuration."
+            />
+          </div>
+
+          <div className="welcome-footer">
+            <div className="platform-assurance">
+              <span className="platform-assurance-icon"><Icon name="monitor" size={16} /></span>
+              <span><strong>For Windows</strong><small>Download a ZIP and run the included installer.</small></span>
+            </div>
+            <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
+              <Icon name="package" size={16} /> Create my helper
+            </Button>
+          </div>
+
+          {notice && (
+            <div className={"notice notice-" + notice.kind} role={notice.kind === "error" ? "alert" : "status"} aria-live="polite">
+              <Icon name={notice.kind === "success" ? "circle-check" : notice.kind === "error" ? "alert-circle" : "info"} size={17} />
+              <p>{notice.message}</p>
+              {notice.kind === "error" && <button type="button" className="notice-dismiss" onClick={() => setNotice(null)} aria-label="Dismiss message"><Icon name="x" size={14} /></button>}
+            </div>
+          )}
+
+          <button className="advanced-settings-link" type="button" onClick={() => { setShowAdvanced(true); setStep(0); }}>
+            <Icon name="sliders-horizontal" size={15} /> I want to customize the setup <Icon name="arrow-right" size={14} />
+          </button>
+        </section>
+      )}
+
+      {showAdvanced && <div className="builder-layout">
         <section className="builder-column" aria-label="Agent configuration">
           <div className="builder-toolbar">
             <div>
-              <span className="toolbar-kicker">NEW PACKAGE</span>
-              <span className="toolbar-title">Configuration</span>
+              <span className="toolbar-kicker">CUSTOMIZE</span>
+              <span className="toolbar-title">Make it your own</span>
             </div>
             <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 05</span>
           </div>
@@ -813,7 +897,7 @@ export default function Home() {
             <p><strong>Still in preview</strong> — provider credentials are configured separately, and MCP connections are not wired up yet.</p>
           </div>
         </aside>
-      </div>
+      </div>}
     </AppShell>
   );
 }

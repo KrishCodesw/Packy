@@ -10,7 +10,6 @@ import {
 
 import {
   createWriteStream,
-  readFileSync,
 } from "node:fs";
 
 import {
@@ -26,6 +25,8 @@ import {
   downloadPiRuntime,
   cleanupPiRuntime,
 } from "../../../lib/pi-runtime";
+
+import { streamFileResponse } from "../../../lib/stream-file-response";
 
 export const runtime = "nodejs";
 
@@ -543,26 +544,18 @@ export async function POST(
       `Harness generated: ${harnessSlug}.zip (${size} bytes)`,
     );
 
-    // Return the generated ZIP directly.
-    const zipBuffer =
-      readFileSync(zipPath);
+    // Stream from disk instead of buffering the entire archive in memory.
+    // The stream helper owns tempDir cleanup after the download finishes or is cancelled.
+    const response = streamFileResponse({
+      filePath: zipPath,
+      tempDir,
+      fileName: `${harnessSlug}.zip`,
+      size,
+    });
 
-    return new NextResponse(
-      zipBuffer,
-      {
-        status: 200,
-        headers: {
-          "Content-Type":
-            "application/zip",
+    tempDir = null;
 
-          "Content-Disposition":
-            `attachment; filename="${harnessSlug}.zip"`,
-
-          "Content-Length":
-            String(size),
-        },
-      },
-    );
+    return response;
   } catch (error) {
     console.error(
       "Harness generation failed:",

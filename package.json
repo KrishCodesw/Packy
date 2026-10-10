@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "npm run test:compile && node --test tests/harness.test.cjs",
-    "test:compile": "tsc --module commonjs --moduleResolution node --target ES2020 --skipLibCheck --esModuleInterop --outDir .test-dist lib/harness.ts",
+    "test": "npm run test:compile && node --test tests/harness.test.cjs tests/stream-file-response.test.cjs",
+    "test:compile": "tsc --module commonjs --moduleResolution node --target ES2020 --skipLibCheck --esModuleInterop --outDir .test-dist lib/harness.ts lib/stream-file-response.ts",
     "prepare:pi": "node scripts/prepare-pi-runtime.mjs"
   },
   "dependencies": {

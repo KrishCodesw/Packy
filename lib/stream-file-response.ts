@@ -41,7 +41,11 @@ export function streamFileResponse({
     cleanup();
   });
 
-  return new Response(Readable.toWeb(fileStream), {
+  // Node and DOM streams have distinct TypeScript declarations; Node's toWeb() returns a
+  // WHATWG ReadableStream at runtime, so bridge only the declaration mismatch here.
+  const body = Readable.toWeb(fileStream) as unknown as ReadableStream<Uint8Array>;
+
+  return new Response(body, {
     status: 200,
     headers: {
       "Content-Type": "application/zip",

@@ -13,11 +13,11 @@ import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
 import Textarea from "./components/ui/Textarea";
 
 const purposeOptions = [
-  { label: "Everyday assistant", name: "My personal assistant", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sparkles" as IconName },
-  { label: "Writing & ideas", name: "Writing companion", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "file-text" as IconName },
-  { label: "Research & learning", name: "Research companion", description: "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.", icon: "book-open" as IconName },
-  { label: "Work & planning", name: "Work organizer", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "layers" as IconName },
-  { label: "Coding & technical work", name: "Coding assistant", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "terminal" as IconName },
+  { label: "Everyday assistant", name: "Everyday Harness", description: "Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.", icon: "sparkles" as IconName },
+  { label: "Writing & ideas", name: "Writing Harness", description: "Help me develop ideas, write clearly, improve drafts, and adapt my writing for different audiences.", icon: "file-text" as IconName },
+  { label: "Research & learning", name: "Research Harness", description: "Help me explore topics, explain unfamiliar ideas, compare information, and summarize what matters.", icon: "book-open" as IconName },
+  { label: "Work & planning", name: "Work Planning Harness", description: "Help me break projects into manageable tasks, organize notes, prepare plans, and keep track of priorities.", icon: "layers" as IconName },
+  { label: "Coding & technical work", name: "Coding Harness", description: "Help me understand code, investigate issues, make careful changes, and explain technical decisions.", icon: "terminal" as IconName },
 ];
 
 const steps: StepItem[] = [
@@ -76,7 +76,7 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  const [name, setName] = useState("My personal assistant");
+  const [name, setName] = useState("Everyday Harness");
   const [description, setDescription] = useState("Help me plan my day, organize information, think through decisions, and turn ideas into clear next steps.");
   const [selectedPurpose, setSelectedPurpose] = useState("Everyday assistant");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -113,7 +113,7 @@ export default function Home() {
       prompts: [
         {
           name: promptName,
-          description: "Review the current changes",
+          description: "Help me with my task",
           body: promptBody,
         },
       ],
@@ -132,7 +132,7 @@ export default function Home() {
 
   function continueStep() {
     if (step === 0 && !name.trim()) {
-      setNotice({ kind: "error", message: "Give this agent a name before continuing." });
+      setNotice({ kind: "error", message: "Give this Harness a name before continuing." });
       return;
     }
     if (step === 1 && !model.trim()) {
@@ -181,7 +181,7 @@ export default function Home() {
 
   async function generate() {
     if (!name.trim() || !model.trim() || !promptName.trim() || !promptBody.trim()) {
-      setNotice({ kind: "error", message: "Complete the agent name, model, and prompt before building." });
+      setNotice({ kind: "error", message: "Complete the Harness name, model, and instructions before creating it." });
       return;
     }
 
@@ -317,9 +317,9 @@ export default function Home() {
     <AppShell activeSection="builder" sectionLabel="Build agent">
       <div className="page-heading">
         <div className="page-heading-copy">
-          <div className="eyebrow"><span className="eyebrow-marker" /> YOUR PERSONAL HELPER</div>
-          <h1>Make a helper that feels like yours.</h1>
-          <p>Tell Packy what you need. It takes care of preparing the setup, so you can focus on what you want help with.</p>
+          <div className="eyebrow"><span className="eyebrow-marker" /> PACKY / HARNESS STUDIO</div>
+          <h1>Make a Harness that feels like yours.</h1>
+          <p>Start with what you need. Shape the details when you’re ready.</p>
         </div>
         <div className="page-heading-meta">
           <span className="status-label"><span className="status-dot" /> BUILDER READY</span>
@@ -328,15 +328,24 @@ export default function Home() {
         </div>
       </div>
 
+      <nav className="builder-mode-switch" aria-label="Choose setup mode">
+        <button type="button" className={"builder-mode-option " + (!showAdvanced ? "active" : "")} onClick={() => { setShowAdvanced(false); setNotice(null); }} aria-pressed={!showAdvanced}>
+          <span className="mode-number">01</span><span><strong>Start with an idea</strong><small>A simple guided setup</small></span>
+        </button>
+        <button type="button" className={"builder-mode-option " + (showAdvanced ? "active" : "")} onClick={() => { setShowAdvanced(true); setNotice(null); }} aria-pressed={showAdvanced}>
+          <span className="mode-number">02</span><span><strong>Customize your Harness</strong><small>Models, tools, rules and more</small></span>
+        </button>
+      </nav>
+
       {!showAdvanced && (
         <section className="welcome-builder" aria-labelledby="welcome-title">
           <div className="welcome-copy">
             <span className="welcome-eyebrow">A GOOD PLACE TO START</span>
-            <h2 id="welcome-title">What would you like a helper to do for you?</h2>
-            <p>Choose a starting point, give your helper a name, and Packy will prepare a ready-to-install package. You can fine-tune the details later.</p>
+            <h2 id="welcome-title">What should your Harness help you accomplish?</h2>
+            <p>Choose a starting point or describe your own. You’re in control of the setup from the beginning.</p>
           </div>
 
-          <div className="purpose-grid" role="group" aria-label="Choose what your helper will do">
+          <div className="purpose-grid" role="group" aria-label="Choose what your Harness will do">
             {purposeOptions.map((purpose) => (
               <button
                 className={"purpose-card " + (selectedPurpose === purpose.label ? "selected" : "")}
@@ -350,7 +359,6 @@ export default function Home() {
                 }}
                 aria-pressed={selectedPurpose === purpose.label}
               >
-                <span className="purpose-card-icon"><Icon name={purpose.icon} size={19} /></span>
                 <span className="purpose-card-label">{purpose.label}</span>
                 <span className="purpose-card-check"><Icon name="check" size={14} /></span>
               </button>
@@ -359,7 +367,7 @@ export default function Home() {
 
           <div className="welcome-form">
             <Input
-              label="Give your helper a name"
+              label="Name your Harness"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="e.g. My study companion"
@@ -367,14 +375,14 @@ export default function Home() {
               maxLength={80}
             />
             <Textarea
-              label="What should it help you with? Use your own words."
+              label="What should it do? Describe it in your own words."
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Tell Packy what you want your helper to do."
+              placeholder="Describe the work you want your Harness to take on."
               rows={3}
               required
               maxLength={500}
-              helperText="You do not need to know anything about models, tools, or configuration."
+              helperText="No technical setup knowledge needed."
             />
           </div>
 
@@ -384,7 +392,7 @@ export default function Home() {
               <span><strong>For Windows</strong><small>Download a ZIP and run the included installer.</small></span>
             </div>
             <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
-              <Icon name="package" size={16} /> Create my helper
+              <Icon name="package" size={16} /> Create my Harness
             </Button>
           </div>
 
@@ -396,18 +404,15 @@ export default function Home() {
             </div>
           )}
 
-          <button className="advanced-settings-link" type="button" onClick={() => { setShowAdvanced(true); setStep(0); }}>
-            <Icon name="sliders" size={15} /> I want to customize the setup <Icon name="arrow-right" size={14} />
-          </button>
         </section>
       )}
 
       {showAdvanced && <div className="builder-layout">
-        <section className="builder-column" aria-label="Agent configuration">
+        <section className="builder-column" aria-label="Harness configuration">
           <div className="builder-toolbar">
             <div>
               <span className="toolbar-kicker">CUSTOMIZE</span>
-              <span className="toolbar-title">Make it your own</span>
+              <span className="toolbar-title">Customize your Harness</span>
             </div>
             <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 05</span>
           </div>
@@ -420,14 +425,14 @@ export default function Home() {
                 <div className="section-heading">
                   <span className="section-index">01</span>
                   <div>
-                    <h2>Give it an identity</h2>
-                    <p>A useful name and a clear purpose make packages easier to share.</p>
+                    <h2>Define your Harness</h2>
+                    <p>Set a name and describe what this Harness is for.</p>
                   </div>
                 </div>
 
                 <div className="form-stack">
                   <Input
-                    label="Agent name"
+                    label="Harness name"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                     placeholder="e.g. Security Reviewer"
@@ -436,7 +441,7 @@ export default function Home() {
                     maxLength={80}
                   />
                   <Textarea
-                    label="What should this agent do?"
+                    label="What should this Harness do?"
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                     placeholder="Describe the agent's purpose, the work it handles, and where it should focus."
@@ -523,7 +528,7 @@ export default function Home() {
                   <span className="section-index">03</span>
                   <div>
                     <h2>Choose its capabilities</h2>
-                    <p>Start with the built-in tools this agent should have available.</p>
+                    <p>Start with the built-in tools this Harness should have available.</p>
                   </div>
                 </div>
 

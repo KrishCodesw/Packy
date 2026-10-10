@@ -1,47 +1,55 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
+import type { HarnessInput, TargetPlatform } from '../lib/harness';
+import Button from './components/ui/Button';
+import Input from './components/ui/Input';
+import Textarea from './components/ui/Textarea';
+import Select from './components/ui/Select';
+import Checkbox from './components/ui/Checkbox';
+import StepsIndicator from './components/ui/StepsIndicator';
+import Brand from './components/ui/Brand';
+import Preview from './components/ui/Preview';
+import Card from './components/ui/Card';
 
-import type { HarnessInput, TargetPlatform } from "../lib/harness";
+const toolOptions = ['read', 'write', 'edit', 'bash', 'grep', 'find', 'ls'];
 
-const toolOptions = ["read", "write", "edit", "bash", "grep", "find", "ls"];
-
-const mcpOptions = ["github", "postgres", "filesystem", "browser"];
+const mcpOptions = ['github', 'postgres', 'filesystem', 'browser'];
 
 const defaultSkills = [ 
   {
-    name: "Code Review",
+    name: 'Code Review',
     description:
-      "Review code for correctness, maintainability, and common security issues.",
+      'Review code for correctness, maintainability, and common security issues.',
   },
   {
-    name: "Git Workflow",
+    name: 'Git Workflow',
     description:
-      "Use disciplined Git workflows for branches, commits, and pull requests.",
+      'Use disciplined Git workflows for branches, commits, and pull requests.',
   },
 ];
 
 export default function Home() {
-  const [name, setName] = useState("My Engineering Agent");
+  const [name, setName] = useState('My Engineering Agent');
   const [description, setDescription] = useState(
-    "A focused coding agent configured for my workflow.",
+    'A focused coding agent configured for my workflow.',
   );
-  const [model, setModel] = useState("anthropic/claude-sonnet-4");
-  const [thinking, setThinking] = useState("medium");
-  const [tools, setTools] = useState(["read", "grep", "find", "ls"]);
-  const [mcps, setMcps] = useState(["github"]);
+  const [model, setModel] = useState('anthropic/claude-sonnet-4');
+  const [thinking, setThinking] = useState('medium');
+  const [tools, setTools] = useState(['read', 'grep', 'find', 'ls']);
+  const [mcps, setMcps] = useState(['github']);
   const [targetPlatform, setTargetPlatform] =
-    useState<TargetPlatform>("windows-x64");
+    useState<TargetPlatform>('windows-x64');
   const [rules, setRules] = useState(
-    "Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes.",
+    'Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes.',
   );
   const [skills, setSkills] = useState(defaultSkills);
-  const [promptName, setPromptName] = useState("review");
+  const [promptName, setPromptName] = useState('review');
   const [promptBody, setPromptBody] = useState(
-    "Review the current changes and report correctness, risks, and missing tests.",
+    'Review the current changes and report correctness, risks, and missing tests.',
   );
   const [step, setStep] = useState(0);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
 
   const input: HarnessInput = useMemo(
     () => ({
@@ -57,24 +65,12 @@ export default function Home() {
       prompts: [
         {
           name: promptName,
-          description: "Review the current changes",
+          description: 'Review the current changes',
           body: promptBody,
         },
       ],
-    }),
-    [
-      name,
-      description,
-      model,
-      thinking,
-      tools,
-      mcps,
-      targetPlatform,
-      skills,
-      rules,
-      promptName,
-      promptBody,
-    ],
+    }), 
+    [name, description, model, thinking, tools, mcps, targetPlatform, skills, rules, promptName, promptBody]
   );
 
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
@@ -82,25 +78,25 @@ export default function Home() {
 
   async function generate() {
     try {
-      setStatus("Generating...");
+      setStatus('Generating...');
 
-      const response = await fetch("/api/generate", {
-        method: "POST",
+      const response = await fetch('/api/generate', {
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
+          'content-type': 'application/json',
         },
         body: JSON.stringify(input),
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => null);
-        throw new Error(data?.error || "Generation failed");
+        throw new Error(data?.error || 'Generation failed');
       }
 
       const blob = await response.blob();
 
-      const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = "harness.zip";
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'harness.zip';
 
       const match = contentDisposition?.match(/filename="([^"]+)"/);
       if (match?.[1]) {
@@ -108,7 +104,7 @@ export default function Home() {
       }
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
+      const anchor = document.createElement('a');
 
       anchor.href = url;
       anchor.download = filename;
@@ -119,39 +115,39 @@ export default function Home() {
       window.URL.revokeObjectURL(url);
 
       setStatus(
-        "Harness generated. Run install.cmd on Windows or install.sh on macOS.",
+        'Harness generated. Run install.cmd on Windows or install.sh on macOS.',
       );
     } catch (error) {
-      console.error("Generation failed:", error);
-      setStatus(error instanceof Error ? error.message : "Generation failed");
+      console.error('Generation failed:', error);
+      setStatus(error instanceof Error ? error.message : 'Generation failed');
     }
   }
 
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand">Harness Builder</div>
+        <div className="brand">Packy</div>
 
         <div className="muted" style={{ fontSize: 12, lineHeight: 1.5 }}>
           Compose a purpose-built Pi harness before installation.
         </div>
 
         <div className="steps">
-          {["Identity", "Runtime", "Capabilities", "Behavior", "Review"].map(
+          {['Identity', 'Runtime', 'Capabilities', 'Behavior', 'Review'].map(
             (x, i) => (
               <div
                 key={x}
-                className={`step ${i === step ? "active" : ""} ${
-                  i < step ? "done" : ""
+                className={`step ${i === step ? 'active' : ''} ${
+                  i < step ? 'done' : ''
                 }`}
               >
-                {String(i + 1).padStart(2, "0")} &nbsp; {x}
+                {String(i + 1).padStart(2, '0')} &nbsp; {x}
               </div>
             ),
           )}
         </div>
 
-        <div style={{ marginTop: "auto" }} className="muted">
+        <div style={{ marginTop: 'auto' }} className="muted">
           <span className="pill">Pi runtime · immutable</span>
         </div>
       </aside>
@@ -164,7 +160,7 @@ export default function Home() {
             <h1 className="title">Build your agent.</h1>
 
             <p className="desc">
-              Define the parts Pi should load. Harness Builder turns the
+              Define the parts Pi should load. Packy turns the
               specification into a portable Pi configuration and resource
               package.
             </p>
@@ -181,20 +177,21 @@ export default function Home() {
               <div className="field">
                 <label className="label">NAME</label>
 
-                <input
-                  className="input"
+                <Input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={setName}
+                  placeholder="My Engineering Agent"
                 />
               </div>
 
               <div className="field">
                 <label className="label">DESCRIPTION</label>
 
-                <textarea
-                  className="textarea"
+                <Textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={setDescription}
+                  placeholder="A focused coding agent configured for my workflow."
+                  rows={3}
                 />
               </div>
             </div>
@@ -203,16 +200,16 @@ export default function Home() {
               <h2>Output</h2>
 
               <div className="preview">
-                {name || "Unnamed harness"}
-                {"\n\n"}
+                {name || 'Unnamed harness'}
+                {'\n\n'}
                 Pi runtime: immutable
-                {"\n"}
+                {'\n'}
                 Config: generated
-                {"\n"}
+                {'\n'}
                 Skills: generated
-                {"\n"}
+                {'\n'}
                 Prompts: generated
-                {"\n"}
+                {'\n'}
                 MCP: generated
               </div>
             </div>
@@ -227,42 +224,40 @@ export default function Home() {
               <div className="field">
                 <label className="label">MODEL</label>
 
-                <input
-                  className="input"
+                <Input
                   value={model}
-                  onChange={(e) => setModel(e.target.value)}
+                  onChange={setModel}
+                  placeholder="anthropic/claude-sonnet-4"
                 />
               </div>
 
               <div className="field">
                 <label className="label">TARGET PLATFORM</label>
 
-                <select
-                  className="select"
+                <Select
                   value={targetPlatform}
-                  onChange={(e) =>
-                    setTargetPlatform(e.target.value as TargetPlatform)
-                  }
-                >
-                  <option value="windows-x64">Windows x64</option>
-                  <option value="macos-arm64">macOS Apple Silicon</option>
-                  <option value="macos-x64">macOS Intel</option>
-                </select>
+                  onChange={setTargetPlatform}
+                  options={[
+                    { value: 'windows-x64', label: 'Windows x64' },
+                    { value: 'macos-arm64', label: 'macOS Apple Silicon' },
+                    { value: 'macos-x64', label: 'macOS Intel' },
+                  ]}
+                />
               </div>
 
               <div className="field">
                 <label className="label">THINKING LEVEL</label>
 
-                <select
-                  className="select"
+                <Select
                   value={thinking}
-                  onChange={(e) => setThinking(e.target.value)}
-                >
-                  <option>minimal</option>
-                  <option>low</option>
-                  <option>medium</option>
-                  <option>high</option>
-                </select>
+                  onChange={setThinking}
+                  options={[
+                    { value: 'minimal', label: 'Minimal' },
+                    { value: 'low', label: 'Low' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'high', label: 'High' },
+                  ]}
+                />
               </div>
             </div>
 
@@ -271,11 +266,12 @@ export default function Home() {
 
               <div className="preview">
                 settings.json
-                {"\n\n"}
+                {'\n\n'}
                 {JSON.stringify(
                   {
                     defaultModel: model,
                     defaultThinkingLevel: thinking,
+                    defaultTools: tools,
                   },
                   null,
                   2,
@@ -293,10 +289,9 @@ export default function Home() {
               <div className="checks">
                 {toolOptions.map((x) => (
                   <label className="check" key={x}>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={tools.includes(x)}
-                      onChange={() => toggle(tools, x, setTools)}
+                      onChange={(checked) => toggle(tools, x, setTools)}
                     />
                     {x}
                   </label>
@@ -308,10 +303,9 @@ export default function Home() {
               <div className="checks">
                 {mcpOptions.map((x) => (
                   <label className="check" key={x}>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={mcps.includes(x)}
-                      onChange={() => toggle(mcps, x, setMcps)}
+                      onChange={(checked) => toggle(mcps, x, setMcps)}
                     />
                     {x}
                   </label>
@@ -348,30 +342,32 @@ export default function Home() {
               <div className="field">
                 <label className="label">SYSTEM RULES · ONE PER LINE</label>
 
-                <textarea
-                  className="textarea"
+                <Textarea
                   value={rules}
-                  onChange={(e) => setRules(e.target.value)}
+                  onChange={setRules}
+                  placeholder="Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."
+                  rows={4}
                 />
               </div>
 
               <div className="field">
                 <label className="label">PROMPT COMMAND</label>
 
-                <input
-                  className="input"
+                <Input
                   value={promptName}
-                  onChange={(e) => setPromptName(e.target.value)}
+                  onChange={setPromptName}
+                  placeholder="review"
                 />
               </div>
 
               <div className="field">
                 <label className="label">PROMPT BODY</label>
 
-                <textarea
-                  className="textarea"
+                <Textarea
                   value={promptBody}
-                  onChange={(e) => setPromptBody(e.target.value)}
+                  onChange={setPromptBody}
+                  placeholder="Review the current changes and report correctness, risks, and missing tests."
+                  rows={4}
                 />
               </div>
             </div>
@@ -399,11 +395,11 @@ export default function Home() {
                   <span>Platform</span>
 
                   <b>
-                    {targetPlatform === "windows-x64"
-                      ? "Windows x64"
-                      : targetPlatform === "macos-arm64"
-                        ? "macOS Apple Silicon"
-                        : "macOS Intel"}
+                    {targetPlatform === 'windows-x64'
+                      ? 'Windows x64'
+                      : targetPlatform === 'macos-arm64'
+                        ? 'macOS Apple Silicon'
+                        : 'macOS Intel'}
                   </b>
                 </div>
 
@@ -419,12 +415,12 @@ export default function Home() {
 
                 <div className="reviewRow">
                   <span>Tools</span>
-                  <b>{tools.join(", ") || "None"}</b>
+                  <b>{tools.join(', ') || 'None'}</b>
                 </div>
 
                 <div className="reviewRow">
                   <span>MCP</span>
-                  <b>{mcps.join(", ") || "None"}</b>
+                  <b>{mcps.join(', ') || 'None'}</b>
                 </div>
 
                 <div className="reviewRow">
@@ -444,17 +440,17 @@ export default function Home() {
 
               <div className="preview">
                 settings.json
-                {"\n"}
+                {'\n'}
                 mcp.json
-                {"\n"}
+                {'\n'}
                 SYSTEM.md
-                {"\n"}
+                {'\n'}
                 harness.json
-                {"\n"}
+                {'\n'}
                 README.md
-                {"\n"}
+                {'\n'}
                 skills/*/SKILL.md
-                {"\n"}
+                {'\n'}
                 prompts/*.md
               </div>
             </div>
@@ -471,13 +467,13 @@ export default function Home() {
           </button>
 
           {step < 4 ? (
-            <button className="btn primary" onClick={() => setStep(step + 1)}>
+            <Button variant="primary" onClick={() => setStep(step + 1)}>
               Continue
-            </button>
+            </Button>
           ) : (
-            <button className="btn primary" onClick={generate}>
+            <Button variant="primary" onClick={generate}>
               Build & Download
-            </button>
+            </Button>
           )}
         </div>
 
@@ -485,7 +481,7 @@ export default function Home() {
 
         <div className="footerNote">
           The generated package uses Pi&apos;s existing resource mechanisms.
-          Harness Builder does not modify Pi core.
+          Packy does not modify Pi core.
         </div>
       </main>
     </div>

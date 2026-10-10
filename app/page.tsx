@@ -390,7 +390,7 @@ export default function Home() {
                   <Icon name="circle-check" size={16} />
                 </div>
                 <div className="platform-choice unavailable" aria-disabled="true">
-                  <Icon name="laptop" size={18} />
+                  <Icon name="monitor" size={18} />
                   <span><strong>macOS</strong><small>Not available yet</small></span>
                 </div>
                 <div className="platform-choice unavailable" aria-disabled="true">
@@ -472,7 +472,7 @@ export default function Home() {
                         <Icon name="circle-check" size={16} />
                       </div>
                       <div className="platform-choice unavailable" aria-disabled="true">
-                        <Icon name="laptop" size={18} />
+                        <Icon name="monitor" size={18} />
                         <span><strong>macOS</strong><small>Not available yet</small></span>
                       </div>
                       <div className="platform-choice unavailable" aria-disabled="true">

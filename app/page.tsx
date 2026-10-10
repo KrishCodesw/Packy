@@ -194,11 +194,76 @@ export default function Home() {
         throw new Error(message);
       }
 
-      const blob = await response.blob();
-      if (blob.size === 0) {
-        throw new Error("The generation endpoint returned an empty package.");
+      const expectedLengthHeader = response.headers.get("Content-Length");
+      const expectedLength = expectedLengthHeader ? Number(expectedLengthHeader) : null;
+      if (expectedLengthHeader && (!Number.isSafeInteger(expectedLength) || expectedLength! <= 0)) {
+        throw new Error("The server returned an invalid package size.");
+      }
+      if (!response.body) {
+        throw new Error("Your browser could not read the package stream. Please try again.");
       }
 
+      // Read the response in chunks. Verify the full byte count before allowing a download.
+      const reader = response.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let receivedLength = 0;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value) {
+            chunks.push(value);
+            receivedLength += value.byteLength;
+            if (expectedLength !== null && receivedLength > expectedLength) {
+              throw new Error("The package stream exceeded its declared size. No file was downloaded.");
+            }
+          }
+        }
+      } catch (error) {
+        await reader.cancel().catch(() => undefined);
+        throw error;
+      }
+
+      if (receivedLength === 0) {
+        throw new Error("The generation endpoint returned an empty package.");
+      }
+      if (expectedLength !== null && receivedLength !== expectedLength) {
+        throw new Error(`The download was incomplete (${receivedLength} of ${expectedLength} bytes). Please try again.`);
+      }
+
+      // ZIP files start with PK and end with an end-of-central-directory record.
+      const firstChunk = chunks[0];
+      if (!firstChunk || firstChunk.length < 4 || firstChunk[0] !== 0x50 || firstChunk[1] !== 0x4b) {
+        throw new Error("The server response is not a valid ZIP file. Please try again.");
+      }
+      const tailLength = Math.min(receivedLength, 65_557);
+      const tail = new Uint8Array(tailLength);
+      let tailOffset = 0;
+      let bytesToSkip = receivedLength - tailLength;
+      for (const chunk of chunks) {
+        if (bytesToSkip >= chunk.length) {
+          bytesToSkip -= chunk.length;
+          continue;
+        }
+        const start = bytesToSkip;
+        bytesToSkip = 0;
+        const count = Math.min(chunk.length - start, tailLength - tailOffset);
+        tail.set(chunk.subarray(start, start + count), tailOffset);
+        tailOffset += count;
+        if (tailOffset === tailLength) break;
+      }
+      let hasEndRecord = false;
+      for (let i = tail.length - 22; i >= Math.max(0, tail.length - 65_557); i--) {
+        if (tail[i] === 0x50 && tail[i + 1] === 0x4b && tail[i + 2] === 0x05 && tail[i + 3] === 0x06) {
+          hasEndRecord = true;
+          break;
+        }
+      }
+      if (!hasEndRecord) {
+        throw new Error("The ZIP file is incomplete or damaged. Please try again.");
+      }
+
+      const blob = new Blob(chunks, { type: "application/zip" });
       const disposition = response.headers.get("Content-Disposition");
       const match = disposition?.match(/filename="([^"]+)"/);
       const filename = match?.[1] || slugify(name) + ".zip";

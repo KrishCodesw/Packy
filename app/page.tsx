@@ -263,7 +263,14 @@ export default function Home() {
         throw new Error("The ZIP file is incomplete or damaged. Please try again.");
       }
 
-      const blob = new Blob(chunks, { type: "application/zip" });
+      // Copy each chunk into an ArrayBuffer. This avoids TypeScript's
+      // ArrayBufferLike/SharedArrayBuffer mismatch in newer TypeScript versions.
+      const blobParts: BlobPart[] = chunks.map((chunk) => {
+        const copy = new Uint8Array(chunk.byteLength);
+        copy.set(chunk);
+        return copy.buffer;
+      });
+      const blob = new Blob(blobParts, { type: "application/zip" });
       const disposition = response.headers.get("Content-Disposition");
       const match = disposition?.match(/filename="([^"]+)"/);
       const filename = match?.[1] || slugify(name) + ".zip";

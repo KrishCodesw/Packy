@@ -767,86 +767,22 @@ export default function Home() {
           )}
         </section>
 
-        <aside className="inspector-column" aria-label="Live package preview">
-          <div className="inspector-card">
-            <div className="inspector-header">
-              <div>
-                <span className="toolbar-kicker">LIVE INSPECTOR</span>
-                <h2>Package preview</h2>
-              </div>
-              <span className="inspector-live"><span /> LIVE</span>
+        <aside className="inspector-column" aria-label="Package summary">
+          <div className="package-summary-card">
+            <span className="package-summary-label">YOUR HARNESS</span>
+            <h2>{name.trim() || "Untitled Harness"}</h2>
+            <p className="package-summary-filename">{packageSlug}.zip</p>
+            <div className="package-summary-platform">
+              <Icon name="monitor" size={15} />
+              <span>Windows x64</span>
+              <span className="package-summary-status">Ready to build</span>
             </div>
-
-            <div className="package-identity">
-              <div className="package-avatar"><Icon name="package" size={22} /></div>
-              <div className="package-identity-copy">
-                <strong>{name.trim() || "Untitled agent"}</strong>
-                <span>{packageSlug}.zip</span>
-              </div>
+            <div className="package-summary-divider" />
+            <div className="package-summary-counts">
+              <div><strong>{activeToolCount}</strong><span>Tools</span></div>
+              <div><strong>{skills.length}</strong><span>Skills</span></div>
+              <div><strong>{activeMcpCount}</strong><span>Connections</span></div>
             </div>
-
-            <div className="inspector-details">
-              <div className="inspector-detail-row">
-                <span>Runtime</span>
-                <strong>Pi <span className="inline-muted">1.0.4</span></strong>
-              </div>
-              <div className="inspector-detail-row">
-                <span>Target</span>
-                <strong><Icon name="monitor" size={14} /> Windows x64</strong>
-              </div>
-            </div>
-
-            <div className="inspector-divider" />
-
-            <div className="inspector-section-title">
-              <span>CONTENTS</span>
-              <span className="contents-count">6 + resources</span>
-            </div>
-            <div className="package-tree">
-              <div className="tree-line">
-                <Icon name="folder" size={16} />
-                <span>agent/</span>
-                <span className="tree-meta">{activeToolCount} tools</span>
-              </div>
-              <div className="tree-child">
-                <div><Icon name="file-text" size={14} /><span>settings.json</span></div>
-                <div><Icon name="file-text" size={14} /><span>SYSTEM.md</span></div>
-                <div><Icon name="file-text" size={14} /><span>mcp.json</span>{mcps.length > 0 && <span className="tree-warning">stub</span>}</div>
-                <div><Icon name="folder" size={14} /><span>skills/</span><span className="tree-meta">{skills.length}</span></div>
-                <div><Icon name="folder" size={14} /><span>prompts/</span><span className="tree-meta">1</span></div>
-              </div>
-              <div className="tree-line">
-                <Icon name="folder" size={16} />
-                <span>runtimes/windows-x64/</span>
-                <span className="tree-meta">Pi</span>
-              </div>
-              <div className="tree-line">
-                <Icon name="file-text" size={16} />
-                <span>harness.json</span>
-              </div>
-              <div className="tree-line">
-                <Icon name="terminal" size={16} />
-                <span>install.cmd</span>
-              </div>
-            </div>
-
-            <div className="inspector-divider" />
-
-            <div className="inspector-section-title"><span>CAPABILITIES</span></div>
-            <div className="capability-pills">
-              <span><Icon name="wrench" size={13} /> {activeToolCount} tools</span>
-              <span><Icon name="layers" size={13} /> {skills.length} skills</span>
-              <span><Icon name="plug" size={13} /> {activeMcpCount} MCP</span>
-            </div>
-            <div className="inspector-note">
-              <Icon name="shield-check" size={16} />
-              <p>Pi core stays unchanged. Packy keeps configuration and resources alongside the bundled runtime.</p>
-            </div>
-          </div>
-
-          <div className="support-note">
-            <span className="support-note-icon"><Icon name="info" size={15} /></span>
-            <p><strong>Still in preview</strong> — provider credentials are configured separately, and MCP connections are not wired up yet.</p>
           </div>
         </aside>
       </div>}

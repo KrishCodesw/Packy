@@ -382,7 +382,7 @@ export default function Home() {
               rows={3}
               required
               maxLength={500}
-              helperText="No technical setup knowledge needed."
+              HarnessText="No technical setup knowledge needed."
             />
           </div>
 
@@ -436,7 +436,7 @@ export default function Home() {
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                     placeholder="e.g. Security Reviewer"
-                    helperText="This becomes the name shown in your package metadata."
+                    HarnessText="This becomes the name shown in your package metadata."
                     required
                     maxLength={80}
                   />
@@ -448,7 +448,7 @@ export default function Home() {
                     rows={4}
                     required
                     maxLength={500}
-                    helperText="Keep it specific. This description is included in the generated system instructions."
+                    HarnessText="Keep it specific. This description is included in the generated system instructions."
                   />
                   <div className="slug-preview">
                     <span className="slug-preview-icon"><Icon name="package" size={16} /></span>
@@ -476,7 +476,7 @@ export default function Home() {
                     onChange={(event) => setModel(event.target.value)}
                     placeholder="provider/model-name"
                     required
-                    helperText="Use the model identifier format supported by Pi, for example anthropic/claude-sonnet-4."
+                    HarnessText="Use the model identifier format supported by Pi, for example anthropic/claude-sonnet-4."
                   />
 
                   <div className="two-column-fields">
@@ -490,7 +490,7 @@ export default function Home() {
                         { value: "medium", label: "Medium" },
                         { value: "high", label: "High" },
                       ]}
-                      helperText="Default reasoning effort."
+                      HarnessText="Default reasoning effort."
                     />
                     <div className="field">
                       <label className="field-label">Pi runtime</label>
@@ -499,7 +499,7 @@ export default function Home() {
                         <span>Pi v1.0.4</span>
                         <span className="read-only-lock"><Icon name="lock" size={13} /></span>
                       </div>
-                      <p className="field-helper">Bundled unchanged.</p>
+                      <p className="field-Harness">Bundled unchanged.</p>
                     </div>
                   </div>
 
@@ -595,7 +595,7 @@ export default function Home() {
                     onChange={(event) => setRules(event.target.value)}
                     placeholder={"Never expose secrets.\nAsk before destructive operations.\nPrefer small, verifiable changes."}
                     rows={4}
-                    helperText="One rule per line. These are written into SYSTEM.md."
+                    HarnessText="One rule per line. These are written into SYSTEM.md."
                   />
 
                   <div className="form-divider" />

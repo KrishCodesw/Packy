@@ -22,7 +22,6 @@ const purposeOptions = [
 
 const steps: StepItem[] = [
   { label: "Identity", description: "Name & purpose" },
-  { label: "Runtime", description: "Model & platform" },
   { label: "Tools", description: "Agent capabilities" },
   { label: "Behavior", description: "Rules & skills" },
   { label: "Review", description: "Build package" },
@@ -135,10 +134,6 @@ export default function Home() {
       setNotice({ kind: "error", message: "Give this Harness a name before continuing." });
       return;
     }
-    if (step === 1 && !model.trim()) {
-      setNotice({ kind: "error", message: "Enter the model identifier Packy should configure." });
-      return;
-    }
     if (step === 3 && (!promptName.trim() || !promptBody.trim())) {
       setNotice({ kind: "error", message: "Add a prompt command name and its instructions." });
       return;
@@ -180,8 +175,8 @@ export default function Home() {
   }
 
   async function generate() {
-    if (!name.trim() || !model.trim() || !promptName.trim() || !promptBody.trim()) {
-      setNotice({ kind: "error", message: "Complete the Harness name, model, and instructions before creating it." });
+    if (!name.trim() || !promptName.trim() || !promptBody.trim()) {
+      setNotice({ kind: "error", message: "Complete the Harness name and instructions before creating it." });
       return;
     }
 
@@ -387,9 +382,23 @@ export default function Home() {
           </div>
 
           <div className="welcome-footer">
-            <div className="platform-assurance">
-              <span className="platform-assurance-icon"><Icon name="monitor" size={16} /></span>
-              <span><strong>For Windows</strong><small>Download a ZIP and run the included installer.</small></span>
+            <div className="platform-choice-block">
+              <span className="platform-choice-label">CHOOSE YOUR PLATFORM</span>
+              <div className="platform-choice-options" role="group" aria-label="Target platform">
+                <div className="platform-choice available" aria-current="true">
+                  <Icon name="monitor" size={18} />
+                  <span><strong>Windows x64</strong><small>Available now</small></span>
+                  <Icon name="check-circle-2" size={16} />
+                </div>
+                <div className="platform-choice unavailable" aria-disabled="true">
+                  <Icon name="laptop" size={18} />
+                  <span><strong>macOS</strong><small>Not available yet</small></span>
+                </div>
+                <div className="platform-choice unavailable" aria-disabled="true">
+                  <Icon name="terminal" size={18} />
+                  <span><strong>Linux</strong><small>Not available yet</small></span>
+                </div>
+              </div>
             </div>
             <Button onClick={generate} loading={isGenerating} disabled={isGenerating}>
               <Icon name="package" size={16} /> Create my Harness
@@ -414,7 +423,7 @@ export default function Home() {
               <span className="toolbar-kicker">CUSTOMIZE</span>
               <span className="toolbar-title">Customize your Harness</span>
             </div>
-            <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 05</span>
+            <span className="toolbar-progress">STEP {String(step + 1).padStart(2, "0")} <span>/</span> 04</span>
           </div>
 
           <StepsIndicator steps={steps} currentStep={step} onChange={goToStep} />
@@ -455,6 +464,24 @@ export default function Home() {
                     <span className="slug-preview-label">PACKAGE FILENAME</span>
                     <code>{packageSlug}.zip</code>
                   </div>
+                  <div className="platform-choice-block advanced-platform-choice">
+                    <span className="platform-choice-label">TARGET PLATFORM</span>
+                    <div className="platform-choice-options" role="group" aria-label="Target platform">
+                      <div className="platform-choice available" aria-current="true">
+                        <Icon name="monitor" size={18} />
+                        <span><strong>Windows x64</strong><small>Available now</small></span>
+                        <Icon name="check-circle-2" size={16} />
+                      </div>
+                      <div className="platform-choice unavailable" aria-disabled="true">
+                        <Icon name="laptop" size={18} />
+                        <span><strong>macOS</strong><small>Not available yet</small></span>
+                      </div>
+                      <div className="platform-choice unavailable" aria-disabled="true">
+                        <Icon name="terminal" size={18} />
+                        <span><strong>Linux</strong><small>Not available yet</small></span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -463,69 +490,6 @@ export default function Home() {
               <>
                 <div className="section-heading">
                   <span className="section-index">02</span>
-                  <div>
-                    <h2>Choose the runtime setup</h2>
-                    <p>Set the model defaults and select a platform that Packy can currently build.</p>
-                  </div>
-                </div>
-
-                <div className="form-stack">
-                  <Input
-                    label="Model identifier"
-                    value={model}
-                    onChange={(event) => setModel(event.target.value)}
-                    placeholder="provider/model-name"
-                    required
-                    helperText="Use the model identifier format supported by Pi, for example anthropic/claude-sonnet-4."
-                  />
-
-                  <div className="two-column-fields">
-                    <Select
-                      label="Thinking level"
-                      value={thinking}
-                      onChange={(event) => setThinking(event.target.value)}
-                      options={[
-                        { value: "minimal", label: "Minimal" },
-                        { value: "low", label: "Low" },
-                        { value: "medium", label: "Medium" },
-                        { value: "high", label: "High" },
-                      ]}
-                      helperText="Default reasoning effort."
-                    />
-                    <div className="field">
-                      <label className="field-label">Pi runtime</label>
-                      <div className="read-only-field">
-                        <span className="read-only-icon"><Icon name="cpu" size={16} /></span>
-                        <span>Pi v1.0.4</span>
-                        <span className="read-only-lock"><Icon name="lock" size={13} /></span>
-                      </div>
-                      <p className="field-Harness">Bundled unchanged.</p>
-                    </div>
-                  </div>
-
-                  <div className="field">
-                    <label className="field-label">Target platform <span className="required-mark">*</span></label>
-                    <div className="platform-card selected">
-                      <span className="platform-glyph"><Icon name="monitor" size={20} /></span>
-                      <span className="platform-copy">
-                        <strong>Windows x64</strong>
-                        <span>Installer included · Ready to build</span>
-                      </span>
-                      <span className="platform-selected"><Icon name="check" size={13} /> Available</span>
-                    </div>
-                    <div className="platform-unavailable">
-                      <Icon name="clock" size={15} />
-                      <span>macOS and Linux builds will appear here when their packaging pipelines are implemented.</span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <div className="section-heading">
-                  <span className="section-index">03</span>
                   <div>
                     <h2>Choose its capabilities</h2>
                     <p>Start with the built-in tools this Harness should have available.</p>
@@ -578,10 +542,10 @@ export default function Home() {
               </>
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <>
                 <div className="section-heading">
-                  <span className="section-index">04</span>
+                  <span className="section-index">03</span>
                   <div>
                     <h2>Set its behavior</h2>
                     <p>Write operating rules, reusable skills, and a prompt command for the agent.</p>
@@ -699,10 +663,10 @@ export default function Home() {
               </>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <>
                 <div className="section-heading">
-                  <span className="section-index">05</span>
+                  <span className="section-index">04</span>
                   <div>
                     <h2>Review your package</h2>
                     <p>Check the generated configuration before creating the downloadable ZIP.</p>
@@ -722,14 +686,6 @@ export default function Home() {
                   <div className="review-row">
                     <span>Package name</span>
                     <strong>{name || "Untitled agent"}</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>Model</span>
-                    <strong>{model || "Not configured"}</strong>
-                  </div>
-                  <div className="review-row">
-                    <span>Thinking level</span>
-                    <strong className="value-capitalize">{thinking}</strong>
                   </div>
                   <div className="review-row">
                     <span>Built-in tools</span>
@@ -782,7 +738,7 @@ export default function Home() {
               <Icon name="arrow-left" size={15} /> Back
             </Button>
             <div className="action-middle">
-              <span className="action-step">{String(step + 1).padStart(2, "0")} / 05</span>
+              <span className="action-step">{String(step + 1).padStart(2, "0")} / 04</span>
               <span className="action-step-track"><span style={{ width: ((step + 1) / steps.length * 100) + "%" }} /></span>
             </div>
             {step < steps.length - 1 ? (
@@ -838,14 +794,6 @@ export default function Home() {
               <div className="inspector-detail-row">
                 <span>Target</span>
                 <strong><Icon name="monitor" size={14} /> Windows x64</strong>
-              </div>
-              <div className="inspector-detail-row">
-                <span>Model</span>
-                <strong className="inspector-model">{model || "Not set"}</strong>
-              </div>
-              <div className="inspector-detail-row">
-                <span>Thinking</span>
-                <strong className="value-capitalize">{thinking}</strong>
               </div>
             </div>
 

@@ -2711,3 +2711,150 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Packy guided, general-audience first screen */
+.welcome-builder {
+  width: min(100%, 920px);
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 44px);
+  border: 1px solid #e8e9e3;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(35, 39, 31, 0.035);
+  animation: page-enter 180ms ease-out both;
+}
+.welcome-copy { max-width: 660px; margin-bottom: 28px; }
+.welcome-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #73796e;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .12em;
+}
+.welcome-copy h2 {
+  max-width: 620px;
+  margin: 0 0 12px;
+  color: #282c26;
+  font-size: clamp(25px, 3.3vw, 35px);
+  font-weight: 620;
+  letter-spacing: -.045em;
+  line-height: 1.16;
+}
+.welcome-copy p {
+  max-width: 600px;
+  margin: 0;
+  color: #777c72;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.purpose-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.purpose-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 118px;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
+  padding: 15px 13px;
+  border: 1px solid #e8e9e3;
+  border-radius: 12px;
+  background: #fff;
+  color: #555b51;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.purpose-card:hover { border-color: #b9beb2; background: #fcfcfa; }
+.purpose-card.selected { border-color: #70796a; background: #f7f8f4; }
+.purpose-card:focus-visible, .advanced-settings-link:focus-visible {
+  outline: 2px solid #77846b;
+  outline-offset: 3px;
+}
+.purpose-card-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e8e9e3;
+  border-radius: 9px;
+  background: #fafbf8;
+  color: #737a6d;
+}
+.purpose-card.selected .purpose-card-icon { border-color: #dfe3d8; background: #eef1e9; color: #525d49; }
+.purpose-card-label { max-width: 100%; color: #3c4239; font-size: 11px; font-weight: 600; line-height: 1.45; }
+.purpose-card-check {
+  position: absolute;
+  top: 12px;
+  right: 11px;
+  display: none;
+  color: #56634d;
+}
+.purpose-card.selected .purpose-card-check { display: inline-flex; }
+.welcome-form { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); gap: 20px; align-items: start; }
+.welcome-form .field { min-width: 0; }
+.welcome-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 25px;
+  padding-top: 22px;
+  border-top: 1px solid #eeefe9;
+}
+.platform-assurance { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.platform-assurance-icon {
+  display: inline-flex;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e7e9e1;
+  border-radius: 10px;
+  color: #777d71;
+  background: #fafbf8;
+}
+.platform-assurance strong, .platform-assurance small { display: block; }
+.platform-assurance strong { margin-bottom: 3px; color: #454b41; font-size: 11px; font-weight: 600; }
+.platform-assurance small { color: #898e83; font-size: 10px; line-height: 1.5; }
+.advanced-settings-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 22px auto 0;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #73796e;
+  font-size: 11px;
+  cursor: pointer;
+}
+.advanced-settings-link:hover { color: #30372c; }
+@media (max-width: 1000px) {
+  .purpose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .purpose-card { min-height: 104px; }
+}
+@media (max-width: 640px) {
+  .welcome-builder { padding: 22px 17px; border-radius: 15px; }
+  .purpose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .purpose-card { min-height: 96px; padding: 12px; gap: 10px; }
+  .purpose-card-label { font-size: 10px; }
+  .welcome-form { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  .welcome-footer { align-items: stretch; flex-direction: column; }
+  .welcome-footer > .btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 380px) {
+  .purpose-grid { grid-template-columns: minmax(0, 1fr); }
+  .purpose-card { min-height: 0; flex-direction: row; align-items: center; gap: 11px; }
+  .purpose-card-icon { width: 30px; height: 30px; }
+}

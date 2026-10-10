@@ -8,7 +8,6 @@ import Checkbox from "./components/ui/Checkbox";
 import Icon, { type IconName } from "./components/ui/Icon";
 import Input from "./components/ui/Input";
 import Preview from "./components/ui/Preview";
-import Select from "./components/ui/Select";
 import StepsIndicator, { type StepItem } from "./components/ui/StepsIndicator";
 import Textarea from "./components/ui/Textarea";
 
@@ -134,7 +133,7 @@ export default function Home() {
       setNotice({ kind: "error", message: "Give this Harness a name before continuing." });
       return;
     }
-    if (step === 3 && (!promptName.trim() || !promptBody.trim())) {
+    if (step === 2 && (!promptName.trim() || !promptBody.trim())) {
       setNotice({ kind: "error", message: "Add a prompt command name and its instructions." });
       return;
     }
@@ -328,7 +327,7 @@ export default function Home() {
           <span className="mode-number">01</span><span><strong>Start with an idea</strong><small>A simple guided setup</small></span>
         </button>
         <button type="button" className={"builder-mode-option " + (showAdvanced ? "active" : "")} onClick={() => { setShowAdvanced(true); setNotice(null); }} aria-pressed={showAdvanced}>
-          <span className="mode-number">02</span><span><strong>Customize your Harness</strong><small>Models, tools, rules and more</small></span>
+          <span className="mode-number">02</span><span><strong>Customize your Harness</strong><small>Tools, rules and more</small></span>
         </button>
       </nav>
 
@@ -388,7 +387,7 @@ export default function Home() {
                 <div className="platform-choice available" aria-current="true">
                   <Icon name="monitor" size={18} />
                   <span><strong>Windows x64</strong><small>Available now</small></span>
-                  <Icon name="check-circle-2" size={16} />
+                  <Icon name="circle-check" size={16} />
                 </div>
                 <div className="platform-choice unavailable" aria-disabled="true">
                   <Icon name="laptop" size={18} />
@@ -470,7 +469,7 @@ export default function Home() {
                       <div className="platform-choice available" aria-current="true">
                         <Icon name="monitor" size={18} />
                         <span><strong>Windows x64</strong><small>Available now</small></span>
-                        <Icon name="check-circle-2" size={16} />
+                        <Icon name="circle-check" size={16} />
                       </div>
                       <div className="platform-choice unavailable" aria-disabled="true">
                         <Icon name="laptop" size={18} />
